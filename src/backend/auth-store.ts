@@ -41,18 +41,19 @@ const friendly = (message: string): string => {
 export type AuthResult = { ok: true; needsConfirmation?: boolean } | { ok: false; error: string };
 
 /**
- * Creates an account. An anonymous user is upgraded in place, so their synced history stays with
- * them; otherwise a new account is made.
+ * Creates an email account. A guest's journal comes along because the device uploads it again once
+ * the new account is signed in (see `syncNow`).
  */
 export async function signUp(email: string, password: string): Promise<AuthResult> {
   if (!supabase) return { ok: false, error: 'Accounts are not available in this build.' };
-  const { data } = await supabase.auth.getSession();
-  const result = data.session?.user.is_anonymous
-    ? await supabase.auth.updateUser({ email, password })
-    : await supabase.auth.signUp({ email, password });
-  if (result.error) return { ok: false, error: friendly(result.error.message) };
-  const user = result.data.user;
-  return { ok: true, needsConfirmation: !!user && !user.email_confirmed_at };
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) return { ok: false, error: friendly(error.message) };
+  // With email confirmation on, Supabase hides whether an address is taken by returning a user
+  // with no identities.
+  if (data.user && data.user.identities?.length === 0) {
+    return { ok: false, error: 'An account with this email already exists. Try signing in.' };
+  }
+  return { ok: true, needsConfirmation: !data.session };
 }
 
 export async function signIn(email: string, password: string): Promise<AuthResult> {

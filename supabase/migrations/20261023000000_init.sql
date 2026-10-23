@@ -69,9 +69,11 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- Ids are generated on the device so records can be created offline and uploaded later.
+-- Ids are generated on the device so records can be created offline and uploaded later. The key
+-- includes the owner, so a device that signs into a different account can upload its journal again
+-- under that account without clashing with the copy saved by the previous (e.g. guest) account.
 create table public.session_summaries (
-  id text primary key,
+  id text not null,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   emotion_id text not null,
   started_at timestamptz not null,
@@ -79,11 +81,12 @@ create table public.session_summaries (
   completed int not null,
   skipped int not null,
   total int not null,
-  redos int not null
+  redos int not null,
+  primary key (user_id, id)
 );
 
 create table public.activity_events (
-  id text primary key,
+  id text not null,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   session_id text not null,
   emotion_id text not null,
@@ -91,36 +94,40 @@ create table public.activity_events (
   type text not null check (
     type in ('session_start', 'session_end', 'start', 'complete', 'skip', 'redo', 'like', 'dislike', 'reaction_cleared')
   ),
-  at timestamptz not null
+  at timestamptz not null,
+  primary key (user_id, id)
 );
 
 create index activity_events_activity_idx on public.activity_events (activity_id, type);
 
 create table public.feedback (
-  id text primary key,
+  id text not null,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   session_id text,
   emotion_id text,
   message text not null check (char_length(message) between 1 and 1000),
-  created_at timestamptz not null
+  created_at timestamptz not null,
+  primary key (user_id, id)
 );
 
 create table public.sketches (
-  id text primary key,
+  id text not null,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   width int not null,
   height int not null,
   strokes jsonb not null,
-  created_at timestamptz not null
+  created_at timestamptz not null,
+  primary key (user_id, id)
 );
 
 create table public.notes (
-  id text primary key,
+  id text not null,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   activity_id text not null,
   emotion_id text not null,
   text text not null check (char_length(text) between 1 and 280),
-  created_at timestamptz not null
+  created_at timestamptz not null,
+  primary key (user_id, id)
 );
 
 do $$

@@ -1,7 +1,11 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
 import { useFeedbackStore } from '@/feedback/store';
 import { useNotesStore } from '@/journal/notes-store';
 import { useHistoryStore, type SessionSummary } from '@/session/history';
 import { useSketchStore } from '@/sketch/store';
+import { deviceStorage, storageKey } from '@/storage/persist';
 import { useTelemetryStore } from '@/telemetry/store';
 
 import { useAuthStore } from './auth-store';
@@ -10,15 +14,36 @@ import { supabase } from './client';
 const iso = (ms: number) => new Date(ms).toISOString();
 const BATCH = 200;
 
+/** Which account this device last uploaded its journal to. */
+export const useSyncState = create<{ userId: string | null }>()(
+  persist(() => ({ userId: null as string | null }), { name: storageKey('sync'), storage: deviceStorage, version: 1 }),
+);
+
+/**
+ * When the device switches account (a guest signs up or signs in), the journal is uploaded again
+ * so it belongs to the new account too. Activity events and feedback are not re-sent, so the
+ * preference statistics don't count anything twice.
+ */
+function resetJournalSyncIfAccountChanged(userId: string) {
+  if (useSyncState.getState().userId === userId) return;
+  const unsync = <T extends { syncedAt?: number }>(items: T[]) => items.map((item) => ({ ...item, syncedAt: undefined }));
+  useHistoryStore.setState((s) => ({ sessions: unsync(s.sessions) }));
+  useSketchStore.setState((s) => ({ sketches: unsync(s.sketches) }));
+  useNotesStore.setState((s) => ({ notes: unsync(s.notes) }));
+  useSyncState.setState({ userId });
+}
+
 async function upload<T extends { id: string }>(
   table: string,
+  userId: string,
   items: T[],
   toRow: (item: T) => Record<string, unknown>,
   markSynced: (ids: string[], at: number) => void,
 ) {
   for (let i = 0; i < items.length; i += BATCH) {
     const chunk = items.slice(i, i + BATCH);
-    const { error } = await supabase!.from(table).upsert(chunk.map(toRow), { onConflict: 'id' });
+    const rows = chunk.map((item) => ({ ...toRow(item), user_id: userId }));
+    const { error } = await supabase!.from(table).upsert(rows, { onConflict: 'user_id,id' });
     if (error) throw new Error(`${table}: ${error.message}`);
     markSynced(
       chunk.map((item) => item.id),
@@ -42,9 +67,14 @@ export function syncNow(): Promise<void> {
 }
 
 async function runSync() {
+  const userId = useAuthStore.getState().userId;
+  if (!userId) return;
+  resetJournalSyncIfAccountChanged(userId);
+
   const telemetry = useTelemetryStore.getState();
   await upload(
     'activity_events',
+    userId,
     telemetry.events.filter((e) => !e.syncedAt),
     (e) => ({ id: e.id, session_id: e.sessionId, emotion_id: e.emotionId, activity_id: e.activityId, type: e.type, at: iso(e.at) }),
     telemetry.markSynced,
@@ -53,6 +83,7 @@ async function runSync() {
   const history = useHistoryStore.getState();
   await upload(
     'session_summaries',
+    userId,
     history.sessions.filter((s) => !s.syncedAt),
     (s) => ({
       id: s.id,
@@ -70,6 +101,7 @@ async function runSync() {
   const feedback = useFeedbackStore.getState();
   await upload(
     'feedback',
+    userId,
     feedback.entries.filter((f) => !f.syncedAt),
     (f) => ({ id: f.id, session_id: f.sessionId, emotion_id: f.emotionId, message: f.message, created_at: iso(f.createdAt) }),
     feedback.markSynced,
@@ -78,6 +110,7 @@ async function runSync() {
   const sketches = useSketchStore.getState();
   await upload(
     'sketches',
+    userId,
     sketches.sketches.filter((s) => !s.syncedAt),
     (s) => ({ id: s.id, width: s.width, height: s.height, strokes: s.strokes, created_at: iso(s.createdAt) }),
     sketches.markSynced,
@@ -86,6 +119,7 @@ async function runSync() {
   const notes = useNotesStore.getState();
   await upload(
     'notes',
+    userId,
     notes.notes.filter((n) => !n.syncedAt),
     (n) => ({ id: n.id, activity_id: n.activityId, emotion_id: n.emotionId, text: n.text, created_at: iso(n.createdAt) }),
     notes.markSynced,

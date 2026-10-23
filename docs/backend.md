@@ -2,8 +2,10 @@
 
 The app works fully offline. Connecting Supabase adds:
 
-- anonymous accounts for every device, upgraded in place when someone creates an account
-- backup and multi-device sync of check-ins, sketches, notes, feedback and activity events
+- an anonymous (guest) account for every device, so likes, skips and feedback reach you even from
+  people who never sign up
+- optional email accounts that back up check-ins, sketches and notes and bring them to other devices
+- upload of feedback and activity events
 - content (emotions, activities, affirmations) editable from the Supabase dashboard
 - an `activity_preferences` view with likes, dislikes, completions, skips and redos per activity
 
@@ -18,7 +20,9 @@ The app works fully offline. Connecting Supabase adds:
    psql "$SUPABASE_DB_URL" -f supabase/seed.sql
    ```
 3. In **Authentication → Sign In / Providers**, turn on **Allow anonymous sign-ins** and keep
-   **Email** enabled. Turning on "Confirm email" is recommended.
+   **Email** enabled. Turning on "Confirm email" is recommended. In **Authentication → URL
+   Configuration**, set the **Site URL** to where the web app is hosted; confirmation links land
+   there, and people then sign in from the app.
 4. Copy `.env.example` to `.env.local` and fill in the project URL and anon (publishable) key from
    **Project Settings → API**. For EAS builds, add the same two variables to the EAS environment.
 5. Restart `npm start`.
@@ -33,10 +37,25 @@ previous content.
 The bundled copy in `src/content` is the offline fallback. After editing it, run
 `npm run seed:generate` to refresh `supabase/seed.sql` (a test fails if they drift apart).
 
+## Accounts
+
+The device is the source of truth and the server is a backup:
+
+1. On first launch the app signs in anonymously and uploads events, feedback and check-ins as a guest.
+2. **Create account** makes a normal email account. When it is signed in (straight away, or after the
+   confirmation link if "Confirm email" is on), the device uploads its check-ins, sketches and notes
+   again under the new account. Events and feedback are not uploaded twice, so statistics stay right.
+3. **Sign in** on another device downloads the account's journal and adds anything done there as a guest.
+4. **Log out** uploads anything pending, removes personal data from the device and starts a new guest.
+
+Guest accounts pile up over time. You can remove old ones from **Authentication → Users**, but that
+also deletes their events from the statistics.
+
 ## Data and privacy
 
 - Every user table has row level security: people can only read and write their own rows.
-- Ids are created on the device so records can be made offline and uploaded later (upserts by id).
+- Ids are created on the device so records can be made offline and uploaded later. Keys are
+  `(user_id, id)`, so the same record can belong to a guest and to the account it moved into.
 - Logging out uploads anything pending, then removes personal data from the device.
 - Sketches and notes are never shown to other users.
 

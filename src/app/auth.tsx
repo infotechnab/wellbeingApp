@@ -17,6 +17,7 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const showToast = useToast((s) => s.show);
 
@@ -28,19 +29,21 @@ export default function AuthScreen() {
     }
     setBusy(true);
     setError(null);
+    setInfo(null);
     const result = mode === 'sign-up' ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
       return;
     }
-    showToast(
-      mode === 'sign-in'
-        ? 'Welcome back!'
-        : result.needsConfirmation
-          ? 'Check your email to confirm your account.'
-          : 'Your account is ready.',
-    );
+    if (mode === 'sign-up' && result.needsConfirmation) {
+      // The account exists but can't be used until the email link is opened.
+      setMode('sign-in');
+      setPassword('');
+      setInfo(`We sent a confirmation link to ${email.trim()}. Open it, then sign in here.`);
+      return;
+    }
+    showToast(mode === 'sign-in' ? 'Welcome back!' : 'Your account is ready.');
     router.back();
   };
 
@@ -57,8 +60,8 @@ export default function AuthScreen() {
           <AppText variant="title">{mode === 'sign-up' ? 'Create an account' : 'Sign in'}</AppText>
           <AppText muted>
             {mode === 'sign-up'
-              ? 'Optional. An account keeps your journal safe and lets you use it on other devices. Everything you have done so far comes with you.'
-              : 'Sign in to bring your journal to this device.'}
+              ? 'Optional. An account backs up your journal and lets you use it on other devices. Everything you have done so far comes with you.'
+              : 'Sign in to bring your journal to this device. Anything you did as a guest is added to your account.'}
           </AppText>
 
           <TextInput
@@ -90,6 +93,11 @@ export default function AuthScreen() {
               {error}
             </AppText>
           ) : null}
+          {info ? (
+            <AppText variant="caption" style={{ color: palette.success }} accessibilityLiveRegion="polite">
+              {info}
+            </AppText>
+          ) : null}
 
           <Button label={busy ? 'Please wait…' : mode === 'sign-up' ? 'Create account' : 'Sign in'} disabled={busy} onPress={submit} />
           <Button
@@ -98,6 +106,7 @@ export default function AuthScreen() {
             onPress={() => {
               setMode(mode === 'sign-up' ? 'sign-in' : 'sign-up');
               setError(null);
+              setInfo(null);
             }}
           />
         </View>
