@@ -24,6 +24,8 @@ export type Session = {
   index: number;
   startedAt: number;
   progress: Record<string, ActivityProgress>;
+  /** True once the user has moved past the last activity (they are on the feedback screen). */
+  finished?: boolean;
 };
 
 export const emptyProgress = (): ActivityProgress => ({
