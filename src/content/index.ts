@@ -4,3 +4,4 @@ export * from './emotions';
 export * from './types';
 export * from './breath';
 export * from './remote';
+export * from './guides';

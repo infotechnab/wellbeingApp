@@ -10,10 +10,12 @@ type Props = {
   size: number;
   /** 0 to 1. */
   progress: number;
+  /** Space between the ring and its content. */
+  padding?: number;
   children?: ReactNode;
 };
 
-export function TimerRing({ size, progress, children }: Props) {
+export function TimerRing({ size, progress, padding = 32, children }: Props) {
   const palette = usePalette();
   const stroke = 10;
   const r = size / 2 - stroke;
@@ -40,11 +42,11 @@ export function TimerRing({ size, progress, children }: Props) {
         />
         <Circle cx={dot.x} cy={dot.y} r={stroke * 0.9} fill={palette.primary} />
       </Svg>
-      <View style={styles.center}>{children}</View>
+      <View style={[styles.center, { padding }]}>{children}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  center: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
 });

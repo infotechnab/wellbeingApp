@@ -5,8 +5,6 @@ import { emptyProgress, type ActivityProgress } from '@/session/model';
 
 import { ActivityCard, type ActivityCardProps } from '../activity-card';
 
-// Reanimated can't run under Jest in this SDK; the animated pieces aren't what these tests cover.
-jest.mock('../buddy', () => ({ Buddy: () => null }));
 jest.mock('@/components/toast', () => ({ useToast: () => jest.fn() }));
 
 const handlers = () => ({

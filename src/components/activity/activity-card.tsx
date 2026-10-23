@@ -87,11 +87,10 @@ export function ActivityCard({
       <View style={styles.visual}>
         <ActivityVisual
           activity={activity}
+          progress={progress}
           remaining={remaining}
           total={total}
           elapsedSec={elapsedSec}
-          running={running}
-          done={done}
           size={visualSize}
           onComplete={onComplete}
           onSaveNote={saveNote}
