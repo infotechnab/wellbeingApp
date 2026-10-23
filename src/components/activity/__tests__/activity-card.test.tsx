@@ -6,6 +6,8 @@ import { emptyProgress, type ActivityProgress } from '@/session/model';
 import { ActivityCard, type ActivityCardProps } from '../activity-card';
 
 jest.mock('@/components/toast', () => ({ useToast: () => jest.fn() }));
+// Draw one frame instead of looping on animation frames, which would update outside act().
+jest.mock('@/hooks/use-frame-clock', () => ({ useFrameClock: () => Date.now() }));
 
 const handlers = () => ({
   onStart: jest.fn(),

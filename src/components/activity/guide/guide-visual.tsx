@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { AccessibilityInfo, Platform, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import { activityTimeline, EMOTIONS, EMOTION_INK, guideOutline, previewTimeline, stepAt, type Activity, type StepState } from '@/content';
@@ -67,6 +67,13 @@ export function GuideVisual({ activity, progress, elapsedSec, remaining, total, 
     current = timeline.steps.length > 0 ? stepAt(timeline, t) : undefined;
     figure = current ? figureAt(timeline, t, { still: !animate }) : poseState('stand', { p: 0, t, still: true });
   }
+
+  // Android and the web read the cue's live region aloud; iOS needs an explicit announcement.
+  const runningCue = status === 'running' ? current?.step.cue : undefined;
+  const runningStep = status === 'running' ? current?.index : undefined;
+  useEffect(() => {
+    if (Platform.OS === 'ios' && runningCue) AccessibilityInfo.announceForAccessibility(runningCue);
+  }, [runningCue, runningStep]);
 
   const dotScreen = activity.kind === 'focus-dot';
   const label = current ? `Animation: ${current.step.cue}` : `Animation for ${activity.title}`;

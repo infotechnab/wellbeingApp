@@ -113,8 +113,13 @@ function Hints({ s, head, colors }: { s: FigureState; head: Point; colors: Figur
   const nudge = 1.6 * (0.5 + 0.5 * Math.sin(s.time * 4));
   const arrows: { d: string; opacity: number; shift: Point }[] = [];
   switch (s.hintKind) {
-    case 'look': {
-      // An arc over the head towards the side the figure is turning to, or an arrow up.
+    case 'look-left':
+    case 'look-right':
+    case 'look-up':
+    case 'look-around': {
+      // An arc over the head towards the side to turn to, or an arrow up. Looking around, the
+      // arrows follow the head.
+      const around = s.hintKind === 'look-around';
       const arc = (side: -1 | 1) => {
         const ctrl = { x: head.x + side * 14, y: head.y - 52 };
         const tip = { x: head.x + side * 34, y: head.y - 34 };
@@ -122,11 +127,11 @@ function Hints({ s, head, colors }: { s: FigureState; head: Point; colors: Figur
       };
       const top = { x: head.x, y: head.y - 58 };
       arrows.push(
-        { d: arc(-1), opacity: clamp01((-s.headTurn - 0.3) / 0.5), shift: { x: -nudge, y: 0 } },
-        { d: arc(1), opacity: clamp01((s.headTurn - 0.3) / 0.5), shift: { x: nudge, y: 0 } },
+        { d: arc(-1), opacity: around ? clamp01((-s.headTurn - 0.3) / 0.5) : s.hintKind === 'look-left' ? 1 : 0, shift: { x: -nudge, y: 0 } },
+        { d: arc(1), opacity: around ? clamp01((s.headTurn - 0.3) / 0.5) : s.hintKind === 'look-right' ? 1 : 0, shift: { x: nudge, y: 0 } },
         {
           d: arrowPath(`M${n(head.x)} ${n(head.y - 39)} L${n(top.x)} ${n(top.y)}`, top, { x: 0, y: -1 }),
-          opacity: clamp01((s.headUp - 0.3) / 0.5),
+          opacity: around ? clamp01((s.headUp - 0.3) / 0.5) : s.hintKind === 'look-up' ? 1 : 0,
           shift: { x: 0, y: -nudge },
         },
       );

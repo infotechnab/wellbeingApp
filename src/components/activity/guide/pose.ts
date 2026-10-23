@@ -15,7 +15,7 @@ export type Hand = {
 };
 
 /** Arrows that show which way to move. */
-export type HintKind = 'look' | 'shoulders-down' | 'press-down';
+export type HintKind = 'look-left' | 'look-right' | 'look-up' | 'look-around' | 'shoulders-down' | 'press-down';
 
 /**
  * Everything the guide figure can show, in the figure's 200 × 200 drawing space. "Left" and "right"
@@ -341,10 +341,10 @@ export const POSES: Record<PoseId, Pose> = {
   'eyes-closed': () => ({ eyes: 0.1, smile: 0.3 }),
   dream: (c) => ({ eyes: 0.1, smile: 0.5, lean: 2 * wave(c, 7), headTilt: 4 }),
   'dream-happy': (c) => ({ eyes: 0.1, smile: 0.95, sparkles: 1, lean: 2 * wave(c, 7), headTilt: 4 }),
-  'look-left': (c) => ({ headTurn: -1, headUp: 0.1 * wave(c, 3), lean: -1.5, hint: 1, hintKind: 'look' }),
-  'look-right': (c) => ({ headTurn: 1, headUp: 0.1 * wave(c, 3), lean: 1.5, hint: 1, hintKind: 'look' }),
-  'look-up': (c) => ({ headUp: 1, headTurn: 0.35 * wave(c, 5), hint: 1, hintKind: 'look' }),
-  'look-around': (c) => ({ headTurn: c.still ? 0.6 : wave(c, 6), headUp: 0.3 * wave(c, 3.7, 0.25), eyes: 0.95, hint: 1, hintKind: 'look' }),
+  'look-left': (c) => ({ headTurn: -1, headUp: 0.1 * wave(c, 3), lean: -1.5, hint: 1, hintKind: 'look-left' }),
+  'look-right': (c) => ({ headTurn: 1, headUp: 0.1 * wave(c, 3), lean: 1.5, hint: 1, hintKind: 'look-right' }),
+  'look-up': (c) => ({ headUp: 1, headTurn: 0.35 * wave(c, 5), hint: 1, hintKind: 'look-up' }),
+  'look-around': (c) => ({ headTurn: c.still ? 0.6 : wave(c, 6), headUp: 0.3 * wave(c, 3.7, 0.25), eyes: 0.95, hint: 1, hintKind: 'look-around' }),
   'feet-flat': () => ({ press: 0.3, headUp: -0.5, eyes: 0.8 }),
   'feet-press': (c) => {
     const j = jitter(c, 0.6);

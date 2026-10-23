@@ -1,9 +1,13 @@
 import { render, screen } from '@testing-library/react-native';
+import { AccessibilityInfo } from 'react-native';
 
 import { getActivity } from '@/content';
 import { emptyProgress, type ActivityProgress } from '@/session/model';
 
 import { GuideVisual } from '../guide-visual';
+
+// Draw one frame instead of looping on animation frames, which would update outside act().
+jest.mock('@/hooks/use-frame-clock', () => ({ useFrameClock: () => Date.now() }));
 
 const show = (id: string, progress: Partial<ActivityProgress> = {}, extra: { elapsedSec?: number; remaining?: number; total?: number } = {}) =>
   render(<GuideVisual activity={getActivity(id)!} progress={{ ...emptyProgress(), ...progress }} elapsedSec={0} size={200} {...extra} />);
@@ -25,6 +29,13 @@ describe('GuideVisual', () => {
     expect(screen.getByText('Breathe in')).toBeTruthy();
     expect(screen.getByText(/Round 1 of 5/)).toBeTruthy();
     expect(screen.getByRole('image', { name: 'Animation: Breathe in' })).toBeTruthy();
+  });
+
+  it('announces each new step to screen readers', async () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
+    await show('anger-wall-push', { status: 'running', runningSince: Date.now() }, { remaining: 10, total: 10 });
+    expect(announce).toHaveBeenCalledWith('Hands on the wall');
+    announce.mockRestore();
   });
 
   it('marks a paused activity as paused', async () => {
