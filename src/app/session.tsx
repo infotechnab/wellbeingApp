@@ -1,19 +1,27 @@
 import { Redirect, router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { ActivityCard } from '@/components/activity/activity-card';
+import { HelpLink } from '@/components/help-link';
 import { AppText, Screen } from '@/components/ui';
-import { EMOTIONS, getActivity } from '@/content';
+import { EMOTIONS, getActivity, type EmotionId } from '@/content';
+import { useHydrated } from '@/hooks/use-hydrated';
 import { useSessionStore } from '@/session/store';
 import { radius, spacing, usePalette } from '@/theme';
 
 const SWIPE_DISTANCE = 60;
 
+/** Emotions where a quiet link to crisis support is shown during the session. */
+const SUPPORT_EMOTIONS = new Set<EmotionId>(['sadness', 'fear', 'anger', 'confused']);
+
 export default function SessionScreen() {
   const session = useSessionStore((s) => s.session);
   const store = useSessionStore();
+  const hydrated = useHydrated(useSessionStore);
+  // Set while navigating back to the wheel, so clearing the session doesn't also trigger the redirect.
+  const [leaving, setLeaving] = useState(false);
   const palette = usePalette();
   const { width, height } = useWindowDimensions();
 
@@ -30,18 +38,20 @@ export default function SessionScreen() {
       else if (e.translationX > SWIPE_DISTANCE) useSessionStore.getState().back();
     });
 
-  if (!session) return <Redirect href="/home" />;
+  if (!hydrated || leaving) return null;
+  const activityId = session?.activityIds[session.index];
+  const activity = activityId ? getActivity(activityId) : undefined;
+  // Opened without a session to show (e.g. a stale link): go to the wheel.
+  if (!session || !activityId || !activity) return <Redirect href="/home" />;
 
   const emotion = EMOTIONS[session.emotionId];
-  const activityId = session.activityIds[session.index];
-  const activity = getActivity(activityId);
-  if (!activity) return <Redirect href="/home" />;
   const progress = session.progress[activityId];
   const visualSize = Math.min(width - spacing.lg * 2, height * 0.34, 300);
 
   const leave = () => {
-    store.end();
+    setLeaving(true);
     router.dismissTo('/home');
+    store.end();
   };
 
   return (
@@ -62,7 +72,7 @@ export default function SessionScreen() {
             />
           ))}
         </View>
-        <View style={{ width: 52 }} />
+        <View style={styles.topRight}>{SUPPORT_EMOTIONS.has(session.emotionId) ? <HelpLink /> : null}</View>
       </View>
 
       <View style={styles.chosen}>
@@ -100,6 +110,7 @@ export default function SessionScreen() {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dots: { flexDirection: 'row', gap: spacing.xs + 2 },
+  topRight: { minWidth: 52, alignItems: 'flex-end' },
   dot: { width: 8, height: 8, borderRadius: radius.pill },
   chosen: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
   chosenRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

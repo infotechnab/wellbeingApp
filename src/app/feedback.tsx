@@ -73,6 +73,11 @@ export default function FeedbackScreen() {
         </View>
 
         <View style={styles.actions}>
+          <Button
+            label="Sketch how you feel now"
+            kind="secondary"
+            onPress={() => router.push({ pathname: '/sketch', params: { from: 'journal' } })}
+          />
           <Button label="Submit" onPress={submit} />
           <Button label="No thanks" kind="ghost" onPress={backToWheel} />
         </View>

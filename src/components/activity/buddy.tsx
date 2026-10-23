@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { EMOTION_INK } from '@/content';
@@ -18,10 +18,12 @@ type Props = {
  */
 export function Buddy({ size, color, scale = 1, durationMs = 600 }: Props) {
   const body = useSharedValue(scale);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    body.value = withTiming(scale, { duration: durationMs, easing: Easing.inOut(Easing.sin) });
-  }, [scale, durationMs, body]);
+    // With "reduce motion" on, the character stays still; the phase text still guides the breath.
+    body.value = reduceMotion ? 1 : withTiming(scale, { duration: durationMs, easing: Easing.inOut(Easing.sin) });
+  }, [scale, durationMs, body, reduceMotion]);
 
   const bodyStyle = useAnimatedStyle(() => ({
     transform: [{ scaleX: 1 + (body.value - 1) * 0.6 }, { scaleY: body.value }],

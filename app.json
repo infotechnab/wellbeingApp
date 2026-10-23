@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.infotechnab.wellbeing"
+      "bundleIdentifier": "com.infotechnab.wellbeing",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +27,12 @@
     },
     "web": {
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Wellbeing",
+      "shortName": "Wellbeing",
+      "themeColor": "#5B9BB5",
+      "backgroundColor": "#FAF8F5",
+      "lang": "en"
     },
     "plugins": [
       "expo-router",
@@ -39,6 +48,7 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "description": "Check in with how you feel and take small, body-based steps to feel better."
   }
 }
