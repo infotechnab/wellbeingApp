@@ -11,6 +11,7 @@ type SketchStore = {
   onboarded: boolean;
   save: (input: Omit<Sketch, 'id' | 'createdAt' | 'syncedAt'>) => Sketch;
   remove: (id: string) => void;
+  merge: (sketches: Sketch[]) => void;
   finishOnboarding: () => void;
   markSynced: (ids: string[], at: number) => void;
 };
@@ -26,6 +27,12 @@ export const useSketchStore = create<SketchStore>()(
         return sketch;
       },
       remove: (id) => set((state) => ({ sketches: state.sketches.filter((s) => s.id !== id) })),
+      merge: (incoming) =>
+        set((state) => {
+          const known = new Set(state.sketches.map((s) => s.id));
+          const added = incoming.filter((s) => !known.has(s.id));
+          return { sketches: [...state.sketches, ...added].sort((a, b) => b.createdAt - a.createdAt).slice(0, 100) };
+        }),
       finishOnboarding: () => set({ onboarded: true }),
       markSynced: (ids, at) => {
         const done = new Set(ids);

@@ -6,6 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SunIcon } from '@/components/icons';
 import { AppText, Screen } from '@/components/ui';
 import { pickAffirmation } from '@/content';
+import { useContentCache } from '@/backend/content-cache';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useSessionStore } from '@/session/store';
 import { useSketchStore } from '@/sketch/store';
@@ -27,7 +28,7 @@ function nextRoute() {
 
 export default function WelcomeScreen() {
   const [affirmation] = useState(() => pickAffirmation());
-  const hydrated = useHydrated(useSessionStore, useSketchStore);
+  const hydrated = useHydrated(useSessionStore, useSketchStore, useContentCache);
 
   const proceed = () => {
     if (hydrated) router.replace(nextRoute());
