@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ToastHost } from '@/components/toast';
 import { useIsDark, usePalette } from '@/theme';
 
 export default function RootLayout() {
@@ -22,7 +23,10 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: palette.background } }}>
             <Stack.Screen name="index" options={{ animation: 'fade' }} />
             <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+            <Stack.Screen name="session" options={{ gestureEnabled: false }} />
+            <Stack.Screen name="feedback" options={{ gestureEnabled: false, animation: 'fade' }} />
           </Stack>
+          <ToastHost />
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
