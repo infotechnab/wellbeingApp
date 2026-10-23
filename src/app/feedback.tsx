@@ -18,7 +18,7 @@ export default function FeedbackScreen() {
   // Clear the finished session so the next emotion starts a fresh queue.
   const backToWheel = () => {
     useSessionStore.getState().end();
-    router.replace('/home');
+    router.dismissTo('/home');
   };
 
   const submit = () => {

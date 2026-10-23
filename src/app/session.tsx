@@ -41,7 +41,7 @@ export default function SessionScreen() {
 
   const leave = () => {
     store.end();
-    router.replace('/home');
+    router.dismissTo('/home');
   };
 
   return (

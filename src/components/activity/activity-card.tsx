@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText, Button } from '@/components/ui';
 import { activityDurationSec, type Activity } from '@/content';
 import { useNow } from '@/hooks/use-now';
+import { useNotesStore } from '@/journal/notes-store';
 import { elapsedMs, type ActivityProgress, type Reaction } from '@/session/model';
 import { spacing } from '@/theme';
 
-import { ActivityVisual } from './activity-visual';
+import { ActivityVisual, INTERACTIVE_KINDS } from './activity-visual';
 import { ReactionButtons } from './reaction-buttons';
 
 export type ActivityCardProps = {
@@ -62,10 +63,18 @@ export function ActivityCard({
     }
   })();
 
+  // Share, write and grounding panels carry their own actions while open.
+  const showPrimary = !(INTERACTIVE_KINDS.has(activity.kind) && running);
+
+  const saveNote = (text: string) => {
+    useNotesStore.getState().add({ text, activityId: activity.id, emotionId: activity.emotionId });
+    onComplete();
+  };
+
   const secondaryLabel = done ? (isLast ? 'Finish' : 'Next') : 'Skip for now';
 
   return (
-    <View style={styles.card}>
+    <ScrollView contentContainerStyle={styles.card} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <AppText variant="title" center>
           {activity.title}
@@ -84,11 +93,13 @@ export function ActivityCard({
           running={running}
           done={done}
           size={visualSize}
+          onComplete={onComplete}
+          onSaveNote={saveNote}
         />
       </View>
 
       <View style={styles.actions}>
-        <Button label={primary.label} onPress={primary.onPress} style={styles.primary} />
+        {showPrimary ? <Button label={primary.label} onPress={primary.onPress} style={styles.primary} /> : null}
         <ReactionButtons value={progress.reaction} onToggle={onReact} />
         <Button label={secondaryLabel} kind="ghost" onPress={onNext} />
       </View>
@@ -98,12 +109,12 @@ export function ActivityCard({
           {activity.research}
         </AppText>
       ) : null}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, gap: spacing.lg, justifyContent: 'space-between' },
+  card: { flexGrow: 1, gap: spacing.lg, justifyContent: 'space-between', paddingBottom: spacing.md },
   header: { gap: spacing.sm },
   visual: { alignItems: 'center', justifyContent: 'center' },
   actions: { gap: spacing.md, alignItems: 'center' },
