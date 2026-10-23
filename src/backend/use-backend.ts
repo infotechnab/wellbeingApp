@@ -35,7 +35,9 @@ export function useBackend() {
     const { data: listener } = auth.onAuthStateChange((event, session) => {
       useAuthStore.getState().setFromSession(session);
       if (event === 'SIGNED_IN' && session && !session.user.is_anonymous) {
-        void quietly(pullJournal().then(syncNow));
+        // Supabase calls this while holding its auth lock; calling back into Supabase here would
+        // deadlock, so the follow-up work runs on the next tick.
+        setTimeout(() => void quietly(pullJournal().then(syncNow)), 0);
       }
     });
 
