@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SketchThumbnail } from '@/components/sketch/sketch-thumbnail';
 import { AppText, Button, Screen } from '@/components/ui';
 import { EMOTIONS } from '@/content';
+import { useNotesStore } from '@/journal/notes-store';
 import { useHistoryStore } from '@/session/history';
 import { useSketchStore } from '@/sketch/store';
 import { radius, spacing, usePalette } from '@/theme';
@@ -13,6 +14,7 @@ export default function JournalScreen() {
   const palette = usePalette();
   const sessions = useHistoryStore((s) => s.sessions);
   const sketches = useSketchStore((s) => s.sketches);
+  const notes = useNotesStore((s) => s.notes);
 
   return (
     <Screen edges={['top']} scroll>
@@ -43,6 +45,24 @@ export default function JournalScreen() {
           ))}
         </View>
       )}
+
+      {notes.length > 0 ? (
+        <>
+          <AppText variant="label" style={styles.sectionHeader}>
+            Notes
+          </AppText>
+          <View style={[styles.list, styles.gap]}>
+            {notes.map((note) => (
+              <View key={note.id} style={[styles.note, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+                <AppText>{note.text}</AppText>
+                <AppText variant="caption" muted>
+                  {formatWhen(note.createdAt)}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        </>
+      ) : null}
 
       <AppText variant="label" style={styles.sectionHeader}>
         Check-ins
@@ -98,5 +118,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
+  note: { padding: spacing.md, borderRadius: radius.md, borderWidth: 1, gap: spacing.xs },
   swatch: { width: 28, height: 28, borderRadius: radius.pill },
 });
