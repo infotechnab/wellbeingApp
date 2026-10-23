@@ -31,6 +31,7 @@ export default function RootLayout() {
             <Stack.Screen name="session" options={{ gestureEnabled: false }} />
             <Stack.Screen name="feedback" options={{ gestureEnabled: false, animation: 'fade' }} />
             <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="help" options={{ presentation: 'modal' }} />
           </Stack>
           <ToastHost />
         </ThemeProvider>

@@ -1,3 +1,5 @@
+import * as Haptics from 'expo-haptics';
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -70,7 +72,10 @@ export const useSessionStore = create<SessionStore>()(
         complete: (activityId) => {
           const before = get().session?.progress[activityId]?.status;
           const s = apply((session, now) => completeActivity(session, activityId, now));
-          if (s && before !== 'done') track(s, 'complete', activityId);
+          if (s && before !== 'done') {
+            track(s, 'complete', activityId);
+            if (Platform.OS !== 'web') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+          }
         },
         redo: (activityId) => {
           const s = apply((session, now) => redoActivity(session, activityId, now));

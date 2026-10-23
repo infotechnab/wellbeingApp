@@ -4,12 +4,16 @@ import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { ActivityCard } from '@/components/activity/activity-card';
+import { HelpLink } from '@/components/help-link';
 import { AppText, Screen } from '@/components/ui';
-import { EMOTIONS, getActivity } from '@/content';
+import { EMOTIONS, getActivity, type EmotionId } from '@/content';
 import { useSessionStore } from '@/session/store';
 import { radius, spacing, usePalette } from '@/theme';
 
 const SWIPE_DISTANCE = 60;
+
+/** Emotions where a quiet link to crisis support is shown during the session. */
+const SUPPORT_EMOTIONS = new Set<EmotionId>(['sadness', 'fear', 'anger', 'confused']);
 
 export default function SessionScreen() {
   const session = useSessionStore((s) => s.session);
@@ -62,7 +66,7 @@ export default function SessionScreen() {
             />
           ))}
         </View>
-        <View style={{ width: 52 }} />
+        <View style={styles.topRight}>{SUPPORT_EMOTIONS.has(session.emotionId) ? <HelpLink /> : null}</View>
       </View>
 
       <View style={styles.chosen}>
@@ -100,6 +104,7 @@ export default function SessionScreen() {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dots: { flexDirection: 'row', gap: spacing.xs + 2 },
+  topRight: { minWidth: 52, alignItems: 'flex-end' },
   dot: { width: 8, height: 8, borderRadius: radius.pill },
   chosen: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
   chosenRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

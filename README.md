@@ -31,6 +31,24 @@ Without configuration the app runs fully offline. To turn on accounts, sync and 
 set up Supabase as described in [docs/backend.md](docs/backend.md) and add the two
 `EXPO_PUBLIC_SUPABASE_*` variables from `.env.example` to `.env.local`.
 
+## Releasing
+
+**Web.** `npm run export:web` writes a static single-page app to `dist/`. Host it on any static
+host (Vercel, Netlify, Cloudflare Pages, S3) with all paths falling back to `index.html`.
+
+**iOS and Android.** Builds run in the cloud with [EAS](https://docs.expo.dev/build/introduction/):
+
+```bash
+npx eas-cli@latest login
+npx eas-cli@latest build --profile preview --platform android   # installable APK for testers
+npx eas-cli@latest build --profile production --platform all    # store builds
+npx eas-cli@latest submit --platform ios                        # upload to App Store Connect
+```
+
+Store submission needs an Apple Developer account and a Google Play Console account. Bundle ids
+are `com.infotechnab.wellbeing`; change them in `app.json` before the first store build if you
+want a different one.
+
 ## Project layout
 
 ```

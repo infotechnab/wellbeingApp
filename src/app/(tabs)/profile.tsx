@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { signInAnonymously, signOut, useAuthStore } from '@/backend/auth-store';
 import { clearLocalJournal, syncNow } from '@/backend/sync';
+import { HelpLink } from '@/components/help-link';
 import { useToast } from '@/components/toast';
 import { AppText, Button, Screen } from '@/components/ui';
 import { useHistoryStore } from '@/session/history';
@@ -69,6 +70,19 @@ export default function ProfileScreen() {
           </AppText>
         </View>
       )}
+
+      <View style={[styles.about, { borderTopColor: palette.border }]}>
+        <AppText variant="label">About and privacy</AppText>
+        <AppText variant="caption" muted>
+          Your check-ins, sketches and notes are saved on this device. With an account they are also backed
+          up privately, and nobody else can see them. Feedback you send and anonymous activity likes help us
+          improve the exercises.
+        </AppText>
+        <AppText variant="caption" muted>
+          This app supports everyday wellbeing and is not a medical service.
+        </AppText>
+        <HelpLink />
+      </View>
     </Screen>
   );
 }
@@ -99,4 +113,5 @@ const styles = StyleSheet.create({
   stats: { flexDirection: 'row', gap: spacing.md, marginVertical: spacing.lg },
   stat: { flex: 1, padding: spacing.md, borderRadius: radius.md, alignItems: 'center' },
   actions: { gap: spacing.sm },
+  about: { gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.lg, borderTopWidth: 1 },
 });
