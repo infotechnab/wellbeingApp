@@ -23,15 +23,27 @@ npm start          # then press i (iOS), a (Android) or w (web)
 | `npm run typecheck` | TypeScript, no emit |
 | `npm test` | Jest unit and component tests |
 | `npm run export:web` | Build the static web app into `dist/` |
+| `npm run seed:generate` | Regenerate `supabase/seed.sql` from `src/content` |
+
+## Backend (optional)
+
+Without configuration the app runs fully offline. To turn on accounts, sync and editable content,
+set up Supabase as described in [docs/backend.md](docs/backend.md) and add the two
+`EXPO_PUBLIC_SUPABASE_*` variables from `.env.example` to `.env.local`.
 
 ## Project layout
 
 ```
 src/
   app/          Expo Router screens (every file is a route)
-    (tabs)/     Home, Journal and Profile tabs
+    (tabs)/     Home (emotion wheel), Journal and Profile tabs
+  backend/      Supabase client, auth, sync and remote content
   components/   Shared UI (ui/ holds the design-system primitives)
+  content/      Emotions, activities and affirmations (offline copy)
+  session/      Activity session logic, persistence and history
+  sketch/       Sketch model and storage
   theme/        Colours (light and dark), spacing, type sizes
+supabase/       Database migrations and generated seed data
 ```
 
 Always add native packages with `npx expo install <package>` so versions match the Expo SDK.
