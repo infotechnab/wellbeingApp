@@ -72,3 +72,26 @@ describe('session store', () => {
     expect(useSessionStore.getState().session!.progress[id].status).toBe('paused');
   });
 });
+
+describe('recoverAfterRestart', () => {
+  it('pauses an activity left running by a crash instead of letting it finish', () => {
+    const store = useSessionStore.getState();
+    store.begin('anger');
+    const id = useSessionStore.getState().session!.activityIds[2]; // Wall Push, 10 s
+    const session = useSessionStore.getState().session!;
+    useSessionStore.setState({
+      session: {
+        ...session,
+        index: 2,
+        progress: {
+          ...session.progress,
+          [id]: { ...session.progress[id], status: 'running', runningSince: Date.now() - 60_000, elapsedMs: 3_000 },
+        },
+      },
+    });
+
+    useSessionStore.getState().recoverAfterRestart();
+
+    expect(useSessionStore.getState().session!.progress[id]).toMatchObject({ status: 'paused', elapsedMs: 3_000 });
+  });
+});

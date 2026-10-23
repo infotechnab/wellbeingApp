@@ -38,6 +38,12 @@ type SessionStore = {
   suspend: () => void;
   /** Saves the session to history and clears it, so the next emotion starts fresh. */
   end: () => void;
+  /**
+   * Called after loading saved state. An activity still marked as running means the app was closed
+   * without going to the background first (e.g. a crash), so the time since is unknown: it is paused
+   * at the point its current run began rather than finishing on its own.
+   */
+  recoverAfterRestart: () => void;
 };
 
 const track = (session: Session, type: ActivityEventType, activityId: string | null) =>
@@ -111,6 +117,15 @@ export const useSessionStore = create<SessionStore>()(
           }
           set({ session: null });
         },
+        recoverAfterRestart: () => {
+          const { session } = get();
+          if (!session) return;
+          const activityId = session.activityIds[session.index];
+          const progress = session.progress[activityId];
+          if (progress?.status === 'running' && progress.runningSince !== undefined) {
+            set({ session: pauseActivity(session, activityId, progress.runningSince) });
+          }
+        },
       };
     },
     {
@@ -118,6 +133,7 @@ export const useSessionStore = create<SessionStore>()(
       storage: deviceStorage,
       version: 1,
       partialize: (state) => ({ session: state.session }),
+      onRehydrateStorage: () => (state) => state?.recoverAfterRestart(),
     },
   ),
 );
