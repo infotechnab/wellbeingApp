@@ -6,19 +6,33 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SunIcon } from '@/components/icons';
 import { AppText, Screen } from '@/components/ui';
 import { pickAffirmation } from '@/content';
+import { useHydrated } from '@/hooks/use-hydrated';
+import { useSessionStore } from '@/session/store';
 import { spacing } from '@/theme';
 
 const WELCOME_DELAY_MS = 2800;
 
+/** Where to go after the welcome screen: back into an unfinished session, or to the wheel. */
+function nextRoute() {
+  const session = useSessionStore.getState().session;
+  if (session?.finished) return '/feedback' as const;
+  if (session) return '/session' as const;
+  return '/home' as const;
+}
+
 export default function WelcomeScreen() {
   const [affirmation] = useState(() => pickAffirmation());
+  const hydrated = useHydrated(useSessionStore);
 
-  const proceed = () => router.replace('/home');
+  const proceed = () => {
+    if (hydrated) router.replace(nextRoute());
+  };
 
   useEffect(() => {
-    const timer = setTimeout(proceed, WELCOME_DELAY_MS);
+    if (!hydrated) return;
+    const timer = setTimeout(() => router.replace(nextRoute()), WELCOME_DELAY_MS);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hydrated]);
 
   return (
     <Screen>
