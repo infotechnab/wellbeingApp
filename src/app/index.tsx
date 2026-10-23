@@ -8,12 +8,17 @@ import { AppText, Screen } from '@/components/ui';
 import { pickAffirmation } from '@/content';
 import { useHydrated } from '@/hooks/use-hydrated';
 import { useSessionStore } from '@/session/store';
+import { useSketchStore } from '@/sketch/store';
 import { spacing } from '@/theme';
 
 const WELCOME_DELAY_MS = 2800;
 
-/** Where to go after the welcome screen: back into an unfinished session, or to the wheel. */
+/**
+ * Where to go after the welcome screen: the sketch screen on first launch, back into an unfinished
+ * session, or to the wheel.
+ */
 function nextRoute() {
+  if (!useSketchStore.getState().onboarded) return '/sketch' as const;
   const session = useSessionStore.getState().session;
   if (session?.finished) return '/feedback' as const;
   if (session) return '/session' as const;
@@ -22,7 +27,7 @@ function nextRoute() {
 
 export default function WelcomeScreen() {
   const [affirmation] = useState(() => pickAffirmation());
-  const hydrated = useHydrated(useSessionStore);
+  const hydrated = useHydrated(useSessionStore, useSketchStore);
 
   const proceed = () => {
     if (hydrated) router.replace(nextRoute());
