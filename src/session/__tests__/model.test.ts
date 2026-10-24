@@ -3,6 +3,7 @@ import {
   completeActivity,
   createSession,
   goBack,
+  hasBegun,
   pauseActivity,
   redoActivity,
   remainingSec,
@@ -85,5 +86,16 @@ describe('session model', () => {
     s = goBack(s, T0 + 2_000);
     expect(s.index).toBe(0);
     expect(s.progress[current].status).toBe('paused');
+  });
+
+  it('has not begun until the first activity is started or skipped', () => {
+    let s = createSession('anger', T0, 's1');
+    expect(hasBegun(s)).toBe(false);
+    expect(hasBegun(startActivity(s, s.activityIds[0], T0))).toBe(true);
+
+    // Skipping ahead and coming back to the first activity still counts.
+    s = goBack(advance(s, T0).session, T0);
+    expect(s.index).toBe(0);
+    expect(hasBegun(s)).toBe(true);
   });
 });

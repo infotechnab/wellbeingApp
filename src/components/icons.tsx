@@ -28,13 +28,13 @@ export function ProfileIcon({ color, size = 24 }: IconProps) {
   );
 }
 
-export function ThumbIcon({ color, size = 24, down, fill = 'none' }: IconProps & { down?: boolean; fill?: string }) {
+export function ThumbIcon({ color, size = 24, down }: IconProps & { down?: boolean }) {
   return (
     <Svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill={fill}
+      fill="none"
       stroke={color}
       strokeWidth={1.6}
       style={down ? { transform: [{ rotate: '180deg' }] } : undefined}>

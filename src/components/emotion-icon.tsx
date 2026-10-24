@@ -150,7 +150,7 @@ export function EmotionGlyph({ id, x, y, size, fill = deepen(EMOTIONS[id].color)
   return <G transform={`translate(${x - size / 2} ${y - size / 2}) scale(${k})`}>{content}</G>;
 }
 
-/** The emotion's icon in a small white badge, as shown next to "You chose …" and in the journal. */
+/** The emotion's icon in a small white badge, as shown in the session's top bar and in the journal. */
 export function EmotionBadge({ id, size = 28 }: { id: EmotionId; size?: number }) {
   const r = size / 2;
   return (

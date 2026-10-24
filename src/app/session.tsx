@@ -2,6 +2,7 @@ import { Redirect, router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { ActivityCard } from '@/components/activity/activity-card';
 import { EmotionBadge } from '@/components/emotion-icon';
@@ -9,6 +10,7 @@ import { HelpLink } from '@/components/help-link';
 import { AppText, Screen } from '@/components/ui';
 import { EMOTIONS, getActivity, type EmotionId } from '@/content';
 import { useHydrated } from '@/hooks/use-hydrated';
+import { hasBegun } from '@/session/model';
 import { useSessionStore } from '@/session/store';
 import { radius, spacing, usePalette } from '@/theme';
 
@@ -48,6 +50,8 @@ export default function SessionScreen() {
   const emotion = EMOTIONS[session.emotionId];
   const progress = session.progress[activityId];
   const visualSize = Math.min(width - spacing.lg * 2, height * 0.34, 300);
+  // The feeling's own words greet the user, then make room once they start, skip or move on.
+  const showIntro = !hasBegun(session);
 
   const leave = () => {
     setLeaving(true);
@@ -61,30 +65,34 @@ export default function SessionScreen() {
         <Pressable accessibilityRole="button" accessibilityLabel="Back to the emotion wheel" hitSlop={12} onPress={leave}>
           <AppText muted>‹ Wheel</AppText>
         </Pressable>
-        <View style={styles.dots} accessibilityLabel={`Activity ${session.index + 1} of ${session.activityIds.length}`}>
-          {session.activityIds.map((id, i) => (
-            <View
-              key={id}
-              style={[
-                styles.dot,
-                { backgroundColor: i === session.index ? palette.primary : palette.border },
-                session.progress[id].status === 'done' && i !== session.index && { backgroundColor: palette.success },
-              ]}
-            />
-          ))}
+        <View
+          style={styles.progress}
+          accessibilityLabel={`${emotion.name}, activity ${session.index + 1} of ${session.activityIds.length}`}>
+          <EmotionBadge id={session.emotionId} size={24} />
+          <View style={styles.dots}>
+            {session.activityIds.map((id, i) => (
+              <View
+                key={id}
+                style={[
+                  styles.dot,
+                  { backgroundColor: i === session.index ? palette.primary : palette.border },
+                  session.progress[id].status === 'done' && i !== session.index && { backgroundColor: palette.success },
+                ]}
+              />
+            ))}
+          </View>
         </View>
         <View style={styles.topRight}>{SUPPORT_EMOTIONS.has(session.emotionId) ? <HelpLink /> : null}</View>
       </View>
 
-      <View style={styles.chosen}>
-        <View style={styles.chosenRow}>
-          <AppText variant="lead">You chose “{emotion.name}”</AppText>
-          <EmotionBadge id={session.emotionId} size={30} />
-        </View>
-        <AppText variant="caption" muted center>
-          {emotion.theme}
-        </AppText>
-      </View>
+      {/* A faint wash of the feeling's colour with a soft outline, so it stays calm in dark mode too. */}
+      {showIntro ? (
+        <Animated.View
+          entering={FadeIn.duration(600)}
+          style={[styles.intro, { backgroundColor: `${emotion.color}2E`, borderColor: `${emotion.color}99` }]}>
+          <AppText center>{emotion.theme}</AppText>
+        </Animated.View>
+      ) : null}
 
       <GestureDetector gesture={swipe}>
         <View style={styles.body}>
@@ -110,10 +118,16 @@ export default function SessionScreen() {
 
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  progress: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   dots: { flexDirection: 'row', gap: spacing.xs + 2 },
   topRight: { minWidth: 52, alignItems: 'flex-end' },
   dot: { width: 8, height: 8, borderRadius: radius.pill },
-  chosen: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
-  chosenRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  intro: {
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
   body: { flex: 1, marginTop: spacing.lg },
 });

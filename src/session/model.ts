@@ -131,3 +131,9 @@ export function goBack(session: Session, now: number): Session {
   const paused = pauseActivity(session, session.activityIds[session.index], now);
   return { ...paused, index: session.index - 1 };
 }
+
+/** False until the user starts the first activity, skips it or moves past it. */
+export function hasBegun(session: Session): boolean {
+  const first = session.progress[session.activityIds[0]] ?? emptyProgress();
+  return session.index > 0 || first.status !== 'idle' || first.skipped;
+}
