@@ -11,3 +11,9 @@ export function formatWhen(at: number, now: number = Date.now()): string {
   if (at >= startOfToday.getTime() - dayMs) return `Yesterday, ${time}`;
   return `${date.getDate()} ${MONTHS[date.getMonth()]}, ${time}`;
 }
+
+/** "1.0.0 (build 12)", or just "1.0.0" when there's no build number, as on the web. */
+export function formatVersion(version: string | null | undefined, build?: string | null): string | null {
+  if (!version) return null;
+  return build ? `${version} (build ${build})` : version;
+}

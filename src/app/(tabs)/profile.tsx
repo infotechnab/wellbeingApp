@@ -10,6 +10,7 @@ import { AppText, Button, Screen } from '@/components/ui';
 import { useHistoryStore } from '@/session/history';
 import { useSketchStore } from '@/sketch/store';
 import { radius, spacing, usePalette } from '@/theme';
+import { appVersion } from '@/utils/app-version';
 
 export default function ProfileScreen() {
   const palette = usePalette();
@@ -82,6 +83,11 @@ export default function ProfileScreen() {
           This app supports everyday wellbeing and is not a medical service.
         </AppText>
         <HelpLink />
+        {appVersion ? (
+          <AppText variant="caption" muted>
+            Version {appVersion}
+          </AppText>
+        ) : null}
       </View>
     </Screen>
   );
