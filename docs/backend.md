@@ -11,7 +11,8 @@ The app works fully offline. Connecting Supabase adds:
 
 ## Setup
 
-1. Create a project at [supabase.com](https://supabase.com).
+1. Create a project at [supabase.com](https://supabase.com). Pick the **South Asia (Mumbai)** region,
+   the closest one to Nepal.
 2. Apply the schema and content. Either paste `supabase/migrations/*.sql` and then `supabase/seed.sql`
    into the SQL editor, or with the Supabase CLI:
    ```bash
