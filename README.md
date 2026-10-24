@@ -46,8 +46,10 @@ domain.
 release (`.github/workflows/android.yml`), so
 https://github.com/infotechnab/wellbeingApp/releases/latest/download/wellbeing.apk is always the
 newest build. Testers open that link on an Android phone, allow installs from their browser when
-asked, and install; a newer build installs over the old one. It's signed with the debug key from
-Expo's Android template, which is fine for testers but not for Google Play.
+asked, and install; a newer build installs over the old one. If Play Protect warns about an app
+from an unknown developer, they tap **More details → Install anyway**. It's signed with the debug
+key from Expo's Android template, which is fine for testers but not for Google Play. The build
+takes about 20 minutes after a merge, and the link points at the previous build until then.
 
 **Store builds.** These run in the cloud with [EAS](https://docs.expo.dev/build/introduction/):
 
