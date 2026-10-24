@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { EmotionBadge } from '@/components/emotion-icon';
 import { SketchThumbnail } from '@/components/sketch/sketch-thumbnail';
 import { AppText, Button, Screen } from '@/components/ui';
 import { EMOTIONS } from '@/content';
@@ -80,7 +81,7 @@ export default function JournalScreen() {
             const emotion = EMOTIONS[item.emotionId];
             return (
               <View key={item.id} style={[styles.row, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-                <View style={[styles.swatch, { backgroundColor: emotion.color }]} />
+                <EmotionBadge id={item.emotionId} size={36} />
                 <View style={{ flex: 1 }}>
                   <AppText variant="label">{emotion.name}</AppText>
                   <AppText variant="caption" muted>
@@ -119,5 +120,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   note: { padding: spacing.md, borderRadius: radius.md, borderWidth: 1, gap: spacing.xs },
-  swatch: { width: 28, height: 28, borderRadius: radius.pill },
 });

@@ -17,7 +17,7 @@ type Props = {
 
 export function TimerRing({ size, progress, padding = 32, children }: Props) {
   const palette = usePalette();
-  const stroke = 10;
+  const stroke = 8;
   const r = size / 2 - stroke;
   const c = size / 2;
   const circumference = 2 * Math.PI * r;
@@ -40,9 +40,12 @@ export function TimerRing({ size, progress, padding = 32, children }: Props) {
           strokeDashoffset={circumference * (1 - clamped)}
           transform={`rotate(-90 ${c} ${c})`}
         />
-        <Circle cx={dot.x} cy={dot.y} r={stroke * 0.9} fill={palette.primary} />
       </Svg>
       <View style={[styles.center, { padding }]}>{children}</View>
+      {/* The dot goes on top so content that fills the ring doesn't cover it. */}
+      <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Circle cx={dot.x} cy={dot.y} r={stroke * 0.95} fill={palette.primary} />
+      </Svg>
     </View>
   );
 }

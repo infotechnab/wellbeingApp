@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { ActivityCard } from '@/components/activity/activity-card';
+import { EmotionBadge } from '@/components/emotion-icon';
 import { HelpLink } from '@/components/help-link';
 import { AppText, Screen } from '@/components/ui';
 import { EMOTIONS, getActivity, type EmotionId } from '@/content';
@@ -78,7 +79,7 @@ export default function SessionScreen() {
       <View style={styles.chosen}>
         <View style={styles.chosenRow}>
           <AppText variant="lead">You chose “{emotion.name}”</AppText>
-          <View style={[styles.swatch, { backgroundColor: emotion.color }]} />
+          <EmotionBadge id={session.emotionId} size={30} />
         </View>
         <AppText variant="caption" muted center>
           {emotion.theme}
@@ -114,6 +115,5 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: radius.pill },
   chosen: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
   chosenRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  swatch: { width: 16, height: 16, borderRadius: radius.pill },
   body: { flex: 1, marginTop: spacing.lg },
 });

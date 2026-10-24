@@ -12,6 +12,9 @@ import { TimerRing } from '../timer-ring';
 import { GuideFigure, type FigureColors } from './figure';
 import { figureAt, poseState, type FigureState } from './pose';
 
+/** The stage fills the timer ring right up to its inner edge. */
+const RING_INSET = 12;
+
 type Props = {
   activity: Activity;
   progress: ActivityProgress;
@@ -42,9 +45,11 @@ export function GuideVisual({ activity, progress, elapsedSec, remaining, total, 
   const animate = !reduceMotion && status !== 'paused';
   const now = useFrameClock(animate);
 
+  // Line art, as in the design reference: plain fill inside dark outlines (light ones in dark mode).
   const colors: FigureColors = {
-    body: EMOTIONS[activity.emotionId].color,
-    ink: EMOTION_INK,
+    body: dark ? '#2A2F34' : '#FFFFFF',
+    ink: dark ? '#E6E8EA' : EMOTION_INK,
+    tint: EMOTIONS[activity.emotionId].color,
     mark: dark ? palette.textMuted : '#4A5155',
     bubble: palette.surface,
     icon: palette.text,
@@ -78,7 +83,8 @@ export function GuideVisual({ activity, progress, elapsedSec, remaining, total, 
   const dotScreen = activity.kind === 'focus-dot';
   const label = current ? `Animation: ${current.step.cue}` : `Animation for ${activity.title}`;
 
-  const stage = (diameter: number) =>
+  /** The figure on its round stage, with the seconds left underneath it when `count` is given. */
+  const stage = (diameter: number, count?: number) =>
     dotScreen ? (
       <View style={[styles.dotScreen, { width: diameter, height: diameter }]} accessibilityLabel="A single dot to rest your eyes on">
         <View style={styles.dot} />
@@ -88,20 +94,34 @@ export function GuideVisual({ activity, progress, elapsedSec, remaining, total, 
         accessible
         accessibilityRole="image"
         accessibilityLabel={label}
-        style={[styles.stage, { width: diameter, height: diameter, borderRadius: diameter / 2, backgroundColor: palette.surfaceMuted }]}>
-        <GuideFigure state={figure} colors={colors} size={diameter} />
+        style={[styles.stage, { width: diameter, height: diameter, borderRadius: diameter / 2, backgroundColor: palette.surface }]}>
+        {count === undefined ? (
+          <GuideFigure state={figure} colors={colors} size={diameter} />
+        ) : (
+          <>
+            <View style={{ marginTop: -diameter * 0.14 }}>
+              <GuideFigure state={figure} colors={colors} size={diameter * 0.8} />
+            </View>
+            <AppText style={[styles.count, { top: diameter * 0.775, fontSize: diameter * 0.15, lineHeight: diameter * 0.18 }]}>
+              {count}
+            </AppText>
+          </>
+        )}
       </View>
     );
 
   if (status === 'idle' || (status === 'done' && total === undefined)) {
+    const ring = Math.round(size * 0.86);
     return (
       <View style={styles.center}>
-        {stage(Math.round(size * 0.8))}
-        {status === 'done' ? (
-          <AppText variant="label" style={{ color: palette.success }}>
-            ✓ Done
-          </AppText>
+        {dotScreen ? (
+          stage(ring)
         ) : (
+          <TimerRing size={ring} progress={status === 'done' ? 1 : 0} padding={RING_INSET}>
+            {stage(ring - 2 * RING_INSET, status === 'idle' ? total : undefined)}
+          </TimerRing>
+        )}
+        {status === 'done' ? null : (
           <View style={styles.outline}>
             <AppText variant="caption" muted center>
               How it works
@@ -151,15 +171,11 @@ export function GuideVisual({ activity, progress, elapsedSec, remaining, total, 
       {dotScreen ? (
         stage(size)
       ) : (
-        <TimerRing size={size} progress={ringProgress} padding={16}>
-          {stage(size - 32)}
+        <TimerRing size={size} progress={ringProgress} padding={RING_INSET}>
+          {stage(size - 2 * RING_INSET, done ? undefined : left)}
         </TimerRing>
       )}
-      {done ? (
-        <AppText variant="label" style={{ color: palette.success }}>
-          ✓ Done
-        </AppText>
-      ) : current ? (
+      {!done && current ? (
         <View style={styles.cue}>
           <AppText variant="title" center accessibilityLiveRegion="polite">
             {current.step.cue}
@@ -183,4 +199,5 @@ const styles = StyleSheet.create({
   number: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   rowText: { flex: 1 },
   cue: { gap: spacing.xs, alignItems: 'center', minHeight: 56 },
+  count: { position: 'absolute', left: 0, right: 0, textAlign: 'center', fontWeight: '500' },
 });

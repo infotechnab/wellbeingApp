@@ -57,11 +57,18 @@ describe('ActivityCard', () => {
     expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
   });
 
-  it('lets the user like an activity without blocking anything', async () => {
+  it('asks for a like once the activity is done, next to Done', async () => {
     const user = userEvent.setup();
-    const props = await renderCard('joy-smile-relaxation', {});
+    const props = await renderCard('joy-smile-relaxation', { status: 'done', completions: 1 });
+    expect(screen.getByText('✓ Done')).toBeTruthy();
     await user.press(screen.getByRole('button', { name: 'I like this activity' }));
     expect(props.onReact).toHaveBeenCalledWith('like');
+  });
+
+  it('keeps the like buttons hidden until the activity is done', async () => {
+    await renderCard('joy-smile-relaxation', {});
+    expect(screen.queryByRole('button', { name: 'I like this activity' })).toBeNull();
+    expect(screen.queryByText('✓ Done')).toBeNull();
   });
 
   it('completes a grounding checklist when every item is ticked', async () => {

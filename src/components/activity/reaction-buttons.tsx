@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThumbIcon } from '@/components/icons';
+import { EMOTION_INK } from '@/content';
 import type { Reaction } from '@/session/model';
 import { radius, spacing, usePalette } from '@/theme';
 
@@ -22,9 +23,9 @@ export function ReactionButtons({ value, onToggle }: Props) {
         onPress={() => onToggle(reaction)}
         style={[
           styles.button,
-          { borderColor: active ? palette.primary : palette.border, backgroundColor: active ? palette.primarySoft : 'transparent' },
+          { borderColor: active ? palette.primary : 'transparent', backgroundColor: active ? palette.primarySoft : 'transparent' },
         ]}>
-        <ThumbIcon down={reaction === 'dislike'} color={active ? palette.primary : palette.textMuted} size={22} />
+        <ThumbIcon down={reaction === 'dislike'} color={EMOTION_INK} fill={THUMB_YELLOW} size={30} />
       </Pressable>
     );
   };
@@ -37,13 +38,16 @@ export function ReactionButtons({ value, onToggle }: Props) {
   );
 }
 
+/** Yellow thumbs, like the emoji in the design reference. */
+const THUMB_YELLOW = '#F6C453';
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'center', gap: spacing.md },
   button: {
     width: 48,
     height: 48,
     borderRadius: radius.pill,
-    borderWidth: 1,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
