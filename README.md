@@ -35,8 +35,12 @@ put its values in `.env.local`, which overrides `.env`.
 
 ## Releasing
 
-**Web.** `npm run export:web` writes a static single-page app to `dist/`. Host it on any static
-host (Vercel, Netlify, Cloudflare Pages, S3) with all paths falling back to `index.html`.
+**Web.** Every push to `main` publishes the web app to GitHub Pages at
+https://infotechnab.github.io/wellbeingApp/ (`.github/workflows/website.yml`). It needs
+**Settings → Pages → Source: GitHub Actions** turned on once. To host it elsewhere,
+`npm run export:web` writes a static single-page app to `dist/`: serve it with all paths falling
+back to `index.html`, and set `WEB_BASE_URL` (for example `/app`) when it isn't at the root of its
+domain.
 
 **iOS and Android.** Builds run in the cloud with [EAS](https://docs.expo.dev/build/introduction/):
 
