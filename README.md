@@ -38,13 +38,16 @@ put its values in `.env.local`, which overrides `.env`.
 **Versions.** The app's version is `version` in `app.json`, starting at 1.0.0, and the bottom of
 Profile shows it with the build number, such as "Version 1.0.0 (build 12)". Raise it for each
 release you give testers (1.0.1 for fixes, 1.1.0 for new features) in `app.json`, and in
-`package.json` to keep the two matching. Build numbers count up by themselves: Android test builds
-use the workflow's run number, and EAS numbers store builds (`appVersionSource: remote` in
-`eas.json`).
+`package.json` to keep the two matching, and add a section saying what changed to `CHANGELOG.md`
+(a test fails without one). Build numbers count up by themselves: Android test builds use the
+workflow's run number, and EAS numbers store builds (`appVersionSource: remote` in `eas.json`).
 
-**Web.** Every push to `main` publishes the web app to GitHub Pages at
-https://infotechnab.github.io/wellbeingApp/ (`.github/workflows/website.yml`). It needs
-**Settings → Pages → Source: GitHub Actions** turned on once. To host it elsewhere,
+**Web.** Every push to `main` publishes to GitHub Pages (`.github/workflows/website.yml`): the
+app's home page at https://infotechnab.github.io/wellbeingApp/, with the download links, the
+newest Android build, What's new and the help numbers, and the web app itself at
+https://infotechnab.github.io/wellbeingApp/app/. The home page is `site/index.html`, filled in by
+`site/build.js` with the version from `app.json` and What's new from `CHANGELOG.md`. Pages needs
+**Settings → Pages → Source: GitHub Actions** turned on once. To host the web app elsewhere,
 `npm run export:web` writes a static single-page app to `dist/`: serve it with all paths falling
 back to `index.html`, and set `WEB_BASE_URL` (for example `/app`) when it isn't at the root of its
 domain.

@@ -25,7 +25,7 @@ The app works fully offline. Connecting Supabase adds:
    (**Authentication → SMTP Settings**): Supabase's built-in email sends only 2 emails an
    hour, and only to members of your Supabase team, so confirmations would block other testers. When
    you turn it on, set the **Site URL** in **Authentication → URL Configuration** to where the web app
-   is hosted (https://infotechnab.github.io/wellbeingApp/ on GitHub Pages); confirmation links land
+   is hosted (https://infotechnab.github.io/wellbeingApp/app/ on GitHub Pages); confirmation links land
    there, and people then sign in from the app.
 4. Put the Project URL and publishable key (from the dashboard's **Connect** button, or
    **Settings → API Keys**) in `.env`. The app's own project is already there, and EAS builds use it
