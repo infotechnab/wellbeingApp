@@ -1,6 +1,7 @@
 name: Website
 
-# Publishes the web app to GitHub Pages (https://<owner>.github.io/<repo>/) on every push to main.
+# Publishes the app's home page and the web app to GitHub Pages (https://<owner>.github.io/<repo>/) on
+# every push to main.
 # Needs Settings > Pages > Source set to "GitHub Actions".
 on:
   push:
@@ -29,12 +30,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # The site lives under /<repo>/. With a custom domain it moves to the root: drop WEB_BASE_URL then.
-      - run: npm run export:web
+      # The site lives under /<repo>/: the home page at the top and the web app in app/. With a custom
+      # domain it moves to the root: make WEB_BASE_URL just /app then.
+      - run: npm run export:web -- --output-dir dist/app
         env:
-          WEB_BASE_URL: /${{ github.event.repository.name }}
-      # Pages has no rewrites: a link to /help or a reload there gets 404.html, so make that the app too.
-      - run: cp dist/index.html dist/404.html
+          WEB_BASE_URL: /${{ github.event.repository.name }}/app
+      - run: node site/build.js dist
+      # Pages has no rewrites: a link to app/help or a reload there gets 404.html, so make that the app too.
+      - run: cp dist/app/index.html dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
