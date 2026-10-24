@@ -24,6 +24,7 @@ npm start          # then press i (iOS), a (Android) or w (web)
 | `npm test` | Jest unit and component tests |
 | `npm run export:web` | Build the static web app into `dist/` |
 | `npm run seed:generate` | Regenerate `supabase/seed.sql` from `src/content` |
+| `npm run iphone` | Build and install a free test copy on an iPhone plugged into your Mac ([docs/iphone-test-build.md](docs/iphone-test-build.md)) |
 
 ## Backend
 
@@ -49,6 +50,9 @@ npx eas-cli@latest submit --platform ios                        # upload to App 
 Store submission needs an Apple Developer account and a Google Play Console account. Bundle ids
 are `com.infotechnab.wellbeing`; change them in `app.json` before the first store build if you
 want a different one.
+
+**Your own iPhone, without a paid Apple account.** A Mac with Xcode can install a test copy that
+lasts 7 days at a time; see [docs/iphone-test-build.md](docs/iphone-test-build.md).
 
 ## Project layout
 

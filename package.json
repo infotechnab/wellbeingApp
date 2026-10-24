@@ -45,8 +45,9 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "iphone": "export APP_VARIANT=local && expo prebuild --platform ios --clean && expo run:ios --device --configuration Release",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
