@@ -39,26 +39,41 @@ describe('sync', () => {
     useAuthStore.setState({ status: 'anonymous', userId: 'user-1', email: null });
   });
 
-  it('uploads unsynced rows once and marks them synced', async () => {
+  it("uploads a guest's events and feedback but keeps their journal on the device", async () => {
     seed();
+    useSketchStore.getState().save({ width: 10, height: 10, strokes: [] });
+    useHistoryStore.getState().add({ id: 'h1', emotionId: 'joy', startedAt: 0, endedAt: 1, completed: 1, skipped: 0, total: 3, redos: 0 });
     await syncNow();
 
-    expect(mockUpserts.map((u) => u.table)).toEqual(['activity_events', 'feedback', 'notes']);
+    expect(mockUpserts.map((u) => u.table)).toEqual(['activity_events', 'feedback']);
     expect(mockUpserts[0].rows[0]).toMatchObject({
       type: 'like',
       activity_id: 'joy-smile-relaxation',
       session_id: 's1',
       user_id: 'user-1',
     });
+    expect(useNotesStore.getState().notes[0].syncedAt).toBeUndefined();
+    expect(useSketchStore.getState().sketches[0].syncedAt).toBeUndefined();
+    expect(useHistoryStore.getState().sessions[0].syncedAt).toBeUndefined();
+  });
+
+  it('uploads unsynced rows once and marks them synced', async () => {
+    useAuthStore.setState({ status: 'signed-in', userId: 'user-2', email: 'a@b.co' });
+    seed();
+    await syncNow();
+
+    expect(mockUpserts.map((u) => u.table)).toEqual(['activity_events', 'feedback', 'notes']);
     expect(mockUpserts.every((u) => u.onConflict === 'user_id,id')).toBe(true);
+    expect(mockUpserts.every((u) => u.rows.every((row) => row.user_id === 'user-2'))).toBe(true);
     expect(useTelemetryStore.getState().events.every((e) => e.syncedAt)).toBe(true);
+    expect(useNotesStore.getState().notes.every((n) => n.syncedAt)).toBe(true);
 
     mockUpserts.length = 0;
     await syncNow();
     expect(mockUpserts).toHaveLength(0);
   });
 
-  it('uploads the journal again, but not events, when the device switches account', async () => {
+  it('uploads the journal, but not events and feedback again, when a guest creates an account', async () => {
     seed();
     useHistoryStore.getState().add({ id: 'h1', emotionId: 'joy', startedAt: 0, endedAt: 1, completed: 1, skipped: 0, total: 3, redos: 0 });
     await syncNow();
@@ -69,6 +84,19 @@ describe('sync', () => {
 
     expect(mockUpserts.map((u) => u.table)).toEqual(['session_summaries', 'notes']);
     expect(mockUpserts[0].rows[0]).toMatchObject({ id: 'h1', user_id: 'user-2' });
+  });
+
+  it('uploads the whole journal again when the device moves to another account', async () => {
+    useAuthStore.setState({ status: 'signed-in', userId: 'user-2', email: 'a@b.co' });
+    seed();
+    await syncNow();
+
+    mockUpserts.length = 0;
+    useAuthStore.setState({ status: 'signed-in', userId: 'user-3', email: 'c@d.co' });
+    await syncNow();
+
+    expect(mockUpserts.map((u) => u.table)).toEqual(['notes']);
+    expect(mockUpserts[0].rows[0]).toMatchObject({ text: 'Call mum', user_id: 'user-3' });
   });
 
   it('keeps rows pending when the upload fails', async () => {

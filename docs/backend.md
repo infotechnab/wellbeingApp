@@ -47,10 +47,12 @@ The bundled copy in `src/content` is the offline fallback. After editing it, run
 
 The device is the source of truth and the server is a backup:
 
-1. On first launch the app signs in anonymously and uploads events, feedback and check-ins as a guest.
+1. On first launch the app signs in anonymously and uploads events and feedback as a guest. A guest's
+   check-ins, sketches and notes stay on the device.
 2. **Create account** makes a normal email account. When it is signed in (straight away, or after the
    confirmation link if "Confirm email" is on), the device uploads its check-ins, sketches and notes
-   again under the new account. Events and feedback are not uploaded twice, so statistics stay right.
+   to it. Events and feedback, already sent as a guest, are not uploaded again, so statistics stay
+   right.
 3. **Sign in** on another device downloads the account's journal and adds anything done there as a guest.
 4. **Log out** uploads anything pending, removes personal data from the device and starts a new guest.
 
@@ -60,8 +62,9 @@ also deletes their events from the statistics.
 ## Data and privacy
 
 - Every user table has row level security: people can only read and write their own rows.
+- Check-ins, sketches and notes reach the server only from people with an account.
 - Ids are created on the device so records can be made offline and uploaded later. Keys are
-  `(user_id, id)`, so the same record can belong to a guest and to the account it moved into.
+  `(user_id, id)`, so the same record can be uploaded again under another account without clashing.
 - Logging out uploads anything pending, then removes personal data from the device.
 - Sketches and notes are never shown to other users.
 
@@ -73,6 +76,12 @@ select * from activity_preferences order by dislikes desc;
 
 -- Recent feedback
 select created_at, emotion_id, message from feedback order by created_at desc limit 50;
+
+-- Versions before 1.0.1 also uploaded guests' check-ins, sketches and notes. This removes those
+-- copies; the guests still have theirs on their devices.
+delete from session_summaries where user_id in (select id from auth.users where is_anonymous);
+delete from sketches where user_id in (select id from auth.users where is_anonymous);
+delete from notes where user_id in (select id from auth.users where is_anonymous);
 ```
 
 Run these from the SQL editor (it uses the service role, which bypasses row level security).

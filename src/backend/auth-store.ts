@@ -41,8 +41,8 @@ const friendly = (message: string): string => {
 export type AuthResult = { ok: true; needsConfirmation?: boolean } | { ok: false; error: string };
 
 /**
- * Creates an email account. A guest's journal comes along because the device uploads it again once
- * the new account is signed in (see `syncNow`).
+ * Creates an email account. A guest's journal comes along because the device uploads it once the new
+ * account is signed in (see `syncNow`).
  */
 export async function signUp(email: string, password: string): Promise<AuthResult> {
   if (!supabase) return { ok: false, error: 'Accounts are not available in this build.' };
