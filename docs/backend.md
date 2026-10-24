@@ -21,11 +21,15 @@ The app works fully offline. Connecting Supabase adds:
    psql "$SUPABASE_DB_URL" -f supabase/seed.sql
    ```
 3. In **Authentication → Sign In / Providers**, turn on **Allow anonymous sign-ins** and keep
-   **Email** enabled. Turning on "Confirm email" is recommended. In **Authentication → URL
-   Configuration**, set the **Site URL** to where the web app is hosted; confirmation links land
-   there, and people then sign in from the app.
-4. Copy `.env.example` to `.env.local` and fill in the project URL and anon (publishable) key from
-   **Project Settings → API**. For EAS builds, add the same two variables to the EAS environment.
+   **Email** enabled. Keep **Confirm email** off until the project has its own email service
+   (**Authentication → SMTP Settings**): Supabase's built-in email sends only 2 emails an
+   hour, and only to members of your Supabase team, so confirmations would block other testers. When
+   you turn it on, set the **Site URL** in **Authentication → URL Configuration** to where the web app
+   is hosted; confirmation links land there, and people then sign in from the app.
+4. Put the Project URL and publishable key (from the dashboard's **Connect** button, or
+   **Settings → API Keys**) in `.env`. The app's own project is already there, and EAS builds use it
+   because the file is committed. To try another project locally, copy `.env.example` to `.env.local`
+   instead; it overrides `.env`.
 5. Restart `npm start`.
 
 ## Editing content
