@@ -25,11 +25,12 @@ npm start          # then press i (iOS), a (Android) or w (web)
 | `npm run export:web` | Build the static web app into `dist/` |
 | `npm run seed:generate` | Regenerate `supabase/seed.sql` from `src/content` |
 
-## Backend (optional)
+## Backend
 
-Without configuration the app runs fully offline. To turn on accounts, sync and editable content,
-set up Supabase as described in [docs/backend.md](docs/backend.md) and add the two
-`EXPO_PUBLIC_SUPABASE_*` variables from `.env.example` to `.env.local`.
+Accounts, sync and editable content use the Supabase project set in `.env` (its URL and publishable
+key are public by design). Without those two `EXPO_PUBLIC_SUPABASE_*` values the app runs fully
+offline. To use another project, set it up as described in [docs/backend.md](docs/backend.md) and
+put its values in `.env.local`, which overrides `.env`.
 
 ## Releasing
 
