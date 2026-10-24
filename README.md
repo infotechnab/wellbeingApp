@@ -42,11 +42,18 @@ https://infotechnab.github.io/wellbeingApp/ (`.github/workflows/website.yml`). I
 back to `index.html`, and set `WEB_BASE_URL` (for example `/app`) when it isn't at the root of its
 domain.
 
-**iOS and Android.** Builds run in the cloud with [EAS](https://docs.expo.dev/build/introduction/):
+**Android test builds.** Every push to `main` also builds an APK and publishes it as a GitHub
+release (`.github/workflows/android.yml`), so
+https://github.com/infotechnab/wellbeingApp/releases/latest/download/wellbeing.apk is always the
+newest build. Testers open that link on an Android phone, allow installs from their browser when
+asked, and install; a newer build installs over the old one. It's signed with the debug key from
+Expo's Android template, which is fine for testers but not for Google Play.
+
+**Store builds.** These run in the cloud with [EAS](https://docs.expo.dev/build/introduction/):
 
 ```bash
 npx eas-cli@latest login
-npx eas-cli@latest build --profile preview --platform android   # installable APK for testers
+npx eas-cli@latest build --profile preview --platform android   # APK signed with an EAS key
 npx eas-cli@latest build --profile production --platform all    # store builds
 npx eas-cli@latest submit --platform ios                        # upload to App Store Connect
 ```

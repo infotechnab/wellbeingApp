@@ -1,0 +1,52 @@
+name: Android APK
+
+# Builds an installable APK for testers on every push to main and publishes it as a GitHub release, so
+# https://github.com/<owner>/<repo>/releases/latest/download/wellbeing.apk is always the newest build.
+# It's signed with the debug key from Expo's Android template: fine for testers, not for Google Play.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths: [.github/workflows/android.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx expo prebuild --platform android --no-install
+      # Real phones only (64- and 32-bit ARM): half the build time and size of all four architectures.
+      - run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+        working-directory: android
+      - run: cp android/app/build/outputs/apk/release/app-release.apk wellbeing.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wellbeing-apk-${{ github.run_number }}
+          path: wellbeing.apk
+      - name: Publish as the latest test build
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "android-${{ github.run_number }}" wellbeing.apk
+          --target "${{ github.sha }}"
+          --title "Android test build ${{ github.run_number }}"
+          --notes "Built from ${{ github.sha }}. To install, open wellbeing.apk on an Android phone and allow
+          installs from your browser or file app when asked. A newer build installs over this one."
