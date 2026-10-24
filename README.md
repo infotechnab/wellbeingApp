@@ -35,6 +35,13 @@ put its values in `.env.local`, which overrides `.env`.
 
 ## Releasing
 
+**Versions.** The app's version is `version` in `app.json`, starting at 1.0.0, and the bottom of
+Profile shows it with the build number, such as "Version 1.0.0 (build 12)". Raise it for each
+release you give testers (1.0.1 for fixes, 1.1.0 for new features) in `app.json`, and in
+`package.json` to keep the two matching. Build numbers count up by themselves: Android test builds
+use the workflow's run number, and EAS numbers store builds (`appVersionSource: remote` in
+`eas.json`).
+
 **Web.** Every push to `main` publishes the web app to GitHub Pages at
 https://infotechnab.github.io/wellbeingApp/ (`.github/workflows/website.yml`). It needs
 **Settings → Pages → Source: GitHub Actions** turned on once. To host it elsewhere,

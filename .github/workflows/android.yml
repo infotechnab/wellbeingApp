@@ -20,6 +20,9 @@ concurrency:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    env:
+      # The APK's build number (Android's versionCode), shown in Profile next to the version.
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,9 +47,9 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "android-${{ github.run_number }}" wellbeing.apk
-          --target "${{ github.sha }}"
-          --title "Android test build ${{ github.run_number }}"
-          --notes "Built from ${{ github.sha }}. To install, open wellbeing.apk on an Android phone and allow
-          installs from your browser or file app when asked. A newer build installs over this one."
+        run: |
+          version=$(node -p "require('./app.json').expo.version")
+          gh release create "android-$ANDROID_VERSION_CODE" wellbeing.apk \
+            --target "${{ github.sha }}" \
+            --title "Wellbeing $version (build $ANDROID_VERSION_CODE)" \
+            --notes "Version $version, build $ANDROID_VERSION_CODE, from ${{ github.sha }}. To install, open wellbeing.apk on an Android phone and allow installs from your browser or file app when asked. A newer build installs over this one."
