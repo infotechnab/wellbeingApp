@@ -20,9 +20,9 @@ export const useSyncState = create<{ userId: string | null }>()(
 );
 
 /**
- * When the device switches account (a guest signs up or signs in), the journal is uploaded again
- * so it belongs to the new account too. Activity events and feedback are not re-sent, so the
- * preference statistics don't count anything twice.
+ * When the device moves to another account (a guest creates one or signs in), the whole journal is
+ * uploaded to it, including anything an earlier account already has. Activity events and feedback
+ * are not re-sent, so the preference statistics don't count anything twice.
  */
 function resetJournalSyncIfAccountChanged(userId: string) {
   if (useSyncState.getState().userId === userId) return;
@@ -55,8 +55,10 @@ async function upload<T extends { id: string }>(
 let running: Promise<void> | null = null;
 
 /**
- * Uploads everything recorded on this device that the server doesn't have yet. Safe to call often:
- * calls overlap into one run, and nothing happens offline or without a signed-in (or anonymous) user.
+ * Uploads what this device recorded that the server doesn't have yet: activity events and feedback
+ * for everyone, and the journal (check-ins, sketches and notes) only with an account. Safe to call
+ * often: calls overlap into one run, and nothing happens offline or without a signed-in (or
+ * anonymous) user.
  */
 export function syncNow(): Promise<void> {
   if (!supabase || !useAuthStore.getState().userId) return Promise.resolve();
@@ -67,9 +69,8 @@ export function syncNow(): Promise<void> {
 }
 
 async function runSync() {
-  const userId = useAuthStore.getState().userId;
+  const { userId, status } = useAuthStore.getState();
   if (!userId) return;
-  resetJournalSyncIfAccountChanged(userId);
 
   const telemetry = useTelemetryStore.getState();
   await upload(
@@ -79,6 +80,19 @@ async function runSync() {
     (e) => ({ id: e.id, session_id: e.sessionId, emotion_id: e.emotionId, activity_id: e.activityId, type: e.type, at: iso(e.at) }),
     telemetry.markSynced,
   );
+
+  const feedback = useFeedbackStore.getState();
+  await upload(
+    'feedback',
+    userId,
+    feedback.entries.filter((f) => !f.syncedAt),
+    (f) => ({ id: f.id, session_id: f.sessionId, emotion_id: f.emotionId, message: f.message, created_at: iso(f.createdAt) }),
+    feedback.markSynced,
+  );
+
+  // A guest's journal stays on the device. Creating an account uploads all of it.
+  if (status !== 'signed-in') return;
+  resetJournalSyncIfAccountChanged(userId);
 
   const history = useHistoryStore.getState();
   await upload(
@@ -96,15 +110,6 @@ async function runSync() {
       redos: s.redos,
     }),
     history.markSynced,
-  );
-
-  const feedback = useFeedbackStore.getState();
-  await upload(
-    'feedback',
-    userId,
-    feedback.entries.filter((f) => !f.syncedAt),
-    (f) => ({ id: f.id, session_id: f.sessionId, emotion_id: f.emotionId, message: f.message, created_at: iso(f.createdAt) }),
-    feedback.markSynced,
   );
 
   const sketches = useSketchStore.getState();

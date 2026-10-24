@@ -3,6 +3,11 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.0.1
+
+- Your check-ins, sketches and notes now stay on your phone until you create an account. Likes and
+  feedback still reach us, so we can keep improving the exercises.
+
 ## 1.0.0
 
 The first test release.

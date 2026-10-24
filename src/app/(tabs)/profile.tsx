@@ -76,8 +76,8 @@ export default function ProfileScreen() {
         <AppText variant="label">About and privacy</AppText>
         <AppText variant="caption" muted>
           Your check-ins, sketches and notes are saved on this device. With an account they are also backed
-          up privately, and nobody else can see them. Feedback you send and anonymous activity likes help us
-          improve the exercises.
+          up privately, and other people using the app can’t see them. Feedback you send and anonymous
+          activity likes help us improve the exercises.
         </AppText>
         <AppText variant="caption" muted>
           This app supports everyday wellbeing and is not a medical service.
