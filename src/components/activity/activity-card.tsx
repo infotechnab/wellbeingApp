@@ -6,7 +6,7 @@ import { activityDurationSec, type Activity } from '@/content';
 import { useNow } from '@/hooks/use-now';
 import { useNotesStore } from '@/journal/notes-store';
 import { elapsedMs, type ActivityProgress, type Reaction } from '@/session/model';
-import { spacing } from '@/theme';
+import { spacing, usePalette } from '@/theme';
 
 import { ActivityVisual, INTERACTIVE_KINDS } from './activity-visual';
 import { ReactionButtons } from './reaction-buttons';
@@ -38,6 +38,7 @@ export function ActivityCard({
   onReact,
   onNext,
 }: ActivityCardProps) {
+  const palette = usePalette();
   const running = progress.status === 'running';
   const done = progress.status === 'done';
   const now = useNow(running);
@@ -95,11 +96,19 @@ export function ActivityCard({
           onComplete={onComplete}
           onSaveNote={saveNote}
         />
+        {/* Likes are asked for once the activity is done, on the same line as "Done". */}
+        {done ? (
+          <View style={styles.row}>
+            <AppText variant="label" style={{ color: palette.success }}>
+              ✓ Done
+            </AppText>
+            <ReactionButtons value={progress.reaction} onToggle={onReact} />
+          </View>
+        ) : null}
       </View>
 
-      <View style={styles.actions}>
-        {showPrimary ? <Button label={primary.label} onPress={primary.onPress} style={styles.primary} /> : null}
-        <ReactionButtons value={progress.reaction} onToggle={onReact} />
+      <View style={styles.row}>
+        {showPrimary ? <Button label={primary.label} kind="secondary" onPress={primary.onPress} style={styles.primary} /> : null}
         <Button label={secondaryLabel} kind="ghost" onPress={onNext} />
       </View>
 
@@ -115,7 +124,7 @@ export function ActivityCard({
 const styles = StyleSheet.create({
   card: { flexGrow: 1, gap: spacing.lg, justifyContent: 'space-between', paddingBottom: spacing.md },
   header: { gap: spacing.sm },
-  visual: { alignItems: 'center', justifyContent: 'center' },
-  actions: { gap: spacing.md, alignItems: 'center' },
-  primary: { minWidth: 180 },
+  visual: { alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  primary: { minWidth: 140 },
 });

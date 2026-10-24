@@ -5,10 +5,12 @@ import type { BubbleIcon } from '@/content';
 import { elbowFor, PIVOT, shoulderFor, WALL_X, type FigureState, type Hand } from './pose';
 
 export type FigureColors = {
-  /** The emotion's colour, for the body. */
+  /** Fill inside the outlines. The design reference draws the figure as line art, so this is plain. */
   body: string;
   /** Outlines and face. */
   ink: string;
+  /** The emotion's colour, for the breathing halo. */
+  tint: string;
   /** Marks drawn on the background: shadow, puffs, ripples, motion lines. */
   mark: string;
   /** Thought bubble fill. */
@@ -341,8 +343,8 @@ export function GuideFigure({ state: s, colors, size }: { state: FigureState; co
       <G transform={figure}>
         {s.halo > 0.01 ? (
           <G opacity={s.halo}>
-            <Circle cx={100} cy={116} r={n(50 + 20 * breath)} fill={colors.body} opacity={0.25} />
-            <Circle cx={100} cy={116} r={n(50 + 20 * breath)} stroke={colors.body} strokeWidth={2.5} fill="none" opacity={0.7} />
+            <Circle cx={100} cy={116} r={n(50 + 20 * breath)} fill={colors.tint} opacity={0.35} />
+            <Circle cx={100} cy={116} r={n(50 + 20 * breath)} stroke={colors.tint} strokeWidth={2.5} fill="none" opacity={0.9} />
           </G>
         ) : null}
 
