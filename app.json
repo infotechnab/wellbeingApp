@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wellbeing",
     "slug": "wellbeing-app",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "wellbeing",
@@ -36,6 +36,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to use the microphone, so you can record voice feedback.",
+          "enableBackgroundPlayback": false
+        }
+      ],
       [
         "expo-splash-screen",
         {

@@ -5,7 +5,8 @@ The app works fully offline. Connecting Supabase adds:
 - an anonymous (guest) account for every device, so likes, skips and feedback reach you even from
   people who never sign up
 - optional email accounts that back up check-ins, sketches and notes and bring them to other devices
-- upload of feedback and activity events
+- upload of feedback and activity events. Feedback from Profile can be written (up to 200 words), a
+  voice message (up to 5 minutes), or both; voice messages go to a private storage bucket
 - content (emotions, activities, affirmations) editable from the Supabase dashboard
 - an `activity_preferences` view with likes, dislikes, completions, skips and redos per activity
 
@@ -32,6 +33,18 @@ The app works fully offline. Connecting Supabase adds:
    because the file is committed. To try another project locally, copy `.env.example` to `.env.local`
    instead; it overrides `.env`.
 5. Restart `npm start`.
+
+### Updating an existing project
+
+Each new file in `supabase/migrations` changes the database for a new version of the app. Paste it
+into the SQL editor and run it **before** releasing that version (merging its pull request), because
+the new version sends data the old database can't store. Copies of the app that are already
+installed keep working after the change.
+
+| File | Needed from |
+| --- | --- |
+| `20261023000000_init.sql` | 1.0.0 |
+| `20261029000000_voice_feedback.sql` | 1.1.0 (voice feedback) |
 
 ## Editing content
 
@@ -67,6 +80,10 @@ also deletes their events from the statistics.
   `(user_id, id)`, so the same record can be uploaded again under another account without clashing.
 - Logging out uploads anything pending, then removes personal data from the device.
 - Sketches and notes are never shown to other users.
+- Voice messages are files in the private `feedback-audio` bucket, named
+  `<user id>/<feedback id>.m4a` (or `.webm` from some browsers). The app can only add files to the
+  person's own folder; nobody can list, play, change or delete them from the app. Listen to them in
+  the dashboard under **Storage → feedback-audio**.
 
 ## Useful queries
 
@@ -74,8 +91,11 @@ also deletes their events from the statistics.
 -- Which activities people like or skip most
 select * from activity_preferences order by dislikes desc;
 
--- Recent feedback
-select created_at, emotion_id, message from feedback order by created_at desc limit 50;
+-- Recent feedback. Feedback from Profile has no session_id; feedback after an exercise has one.
+-- audio_path is the voice message's file in Storage → feedback-audio.
+select created_at, session_id is null as from_profile, emotion_id, message, audio_path,
+       audio_duration_ms / 1000 as seconds, app_version, platform
+from feedback order by created_at desc limit 50;
 
 -- Versions before 1.0.1 also uploaded guests' check-ins, sketches and notes. This removes those
 -- copies; the guests still have theirs on their devices.

@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'rea
 
 import { useToast } from '@/components/toast';
 import { AppText, Button, Screen } from '@/components/ui';
-import { FEEDBACK_MAX_LENGTH, useFeedbackStore, validateFeedback } from '@/feedback/store';
+import { countWords, FEEDBACK_MAX_LENGTH, FEEDBACK_MAX_WORDS, useFeedbackStore, validateFeedback } from '@/feedback/store';
 import { useSessionStore } from '@/session/store';
 import { fontSize, radius, spacing, usePalette } from '@/theme';
 
@@ -67,7 +67,7 @@ export default function FeedbackScreen() {
             </AppText>
           ) : (
             <AppText variant="caption" muted style={{ textAlign: 'right' }}>
-              {text.length}/{FEEDBACK_MAX_LENGTH}
+              {countWords(text)}/{FEEDBACK_MAX_WORDS} words
             </AppText>
           )}
         </View>

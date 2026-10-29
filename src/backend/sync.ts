@@ -86,7 +86,17 @@ async function runSync() {
     'feedback',
     userId,
     feedback.entries.filter((f) => !f.syncedAt),
-    (f) => ({ id: f.id, session_id: f.sessionId, emotion_id: f.emotionId, message: f.message, created_at: iso(f.createdAt) }),
+    (f) => ({
+      id: f.id,
+      session_id: f.sessionId,
+      emotion_id: f.emotionId,
+      message: f.message || null,
+      audio_path: f.audioPath ?? null,
+      audio_duration_ms: f.audioDurationMs ?? null,
+      app_version: f.appVersion ?? null,
+      platform: f.platform ?? null,
+      created_at: iso(f.createdAt),
+    }),
     feedback.markSynced,
   );
 

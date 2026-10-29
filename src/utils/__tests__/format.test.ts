@@ -1,4 +1,4 @@
-import { formatVersion, formatWhen } from '../format';
+import { formatDuration, formatVersion, formatWhen } from '../format';
 
 describe('formatWhen', () => {
   const now = new Date(2026, 9, 23, 18, 0).getTime();
@@ -25,5 +25,14 @@ describe('formatVersion', () => {
 
   it('shows nothing when the version is unknown', () => {
     expect(formatVersion(undefined, '12')).toBeNull();
+  });
+});
+
+describe('formatDuration', () => {
+  it('shows minutes and seconds', () => {
+    expect(formatDuration(0)).toBe('0:00');
+    expect(formatDuration(4_999)).toBe('0:04');
+    expect(formatDuration(83_412)).toBe('1:23');
+    expect(formatDuration(300_000)).toBe('5:00');
   });
 });
