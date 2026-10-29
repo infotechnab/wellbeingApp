@@ -72,7 +72,15 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      <View style={[styles.about, { borderTopColor: palette.border }]}>
+      <View style={[styles.section, { borderTopColor: palette.border }]}>
+        <AppText variant="label">Feedback</AppText>
+        <AppText variant="caption" muted>
+          Tell us what helps and what doesn’t, in writing or as a voice message.
+        </AppText>
+        <Button label="Send feedback" kind="secondary" onPress={() => router.push('/send-feedback')} />
+      </View>
+
+      <View style={[styles.section, { borderTopColor: palette.border }]}>
         <AppText variant="label">About and privacy</AppText>
         <AppText variant="caption" muted>
           Your check-ins, sketches and notes are saved on this device. With an account they are also backed
@@ -119,5 +127,5 @@ const styles = StyleSheet.create({
   stats: { flexDirection: 'row', gap: spacing.md, marginVertical: spacing.lg },
   stat: { flex: 1, padding: spacing.md, borderRadius: radius.md, alignItems: 'center' },
   actions: { gap: spacing.sm },
-  about: { gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.lg, borderTopWidth: 1 },
+  section: { gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.lg, borderTopWidth: 1 },
 });

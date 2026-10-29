@@ -17,3 +17,9 @@ export function formatVersion(version: string | null | undefined, build?: string
   if (!version) return null;
   return build ? `${version} (build ${build})` : version;
 }
+
+/** A length of time as "m:ss", such as "4:05". */
+export function formatDuration(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}

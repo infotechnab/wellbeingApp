@@ -99,6 +99,29 @@ describe('sync', () => {
     expect(mockUpserts[0].rows[0]).toMatchObject({ text: 'Call mum', user_id: 'user-3' });
   });
 
+  it('sends feedback with its voice message, version and platform', async () => {
+    useFeedbackStore.getState().add({
+      id: 'f1',
+      message: '',
+      sessionId: null,
+      emotionId: null,
+      audioPath: 'user-1/f1.m4a',
+      audioDurationMs: 83000,
+    });
+    await syncNow();
+
+    const feedback = mockUpserts.find((u) => u.table === 'feedback');
+    expect(feedback?.rows[0]).toMatchObject({
+      id: 'f1',
+      user_id: 'user-1',
+      message: null,
+      audio_path: 'user-1/f1.m4a',
+      audio_duration_ms: 83000,
+      platform: expect.any(String),
+    });
+    expect(feedback?.rows[0]).toHaveProperty('app_version');
+  });
+
   it('keeps rows pending when the upload fails', async () => {
     seed();
     mockFailTable = 'feedback';

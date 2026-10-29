@@ -3,6 +3,12 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.1.0
+
+- Send feedback from Profile: write up to 200 words, record a voice message of up to 5 minutes, or
+  both. Only the Wellbeing team reads and listens to it.
+- Feedback after an exercise can also be up to 200 words.
+
 ## 1.0.1
 
 - Your check-ins, sketches and notes now stay on your phone until you create an account. Likes and
