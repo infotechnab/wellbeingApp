@@ -3,6 +3,11 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.3.1
+
+- A new logo: eight soft petals like the feelings wheel, with one filled in for the feeling you
+  pick. You'll see it as the app icon, on the opening screen and on the website.
+
 ## 1.3.0
 
 - New Notifications section in Profile with a Morning (8 am), Midday (1 pm) and Evening (8 pm)
