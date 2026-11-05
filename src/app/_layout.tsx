@@ -5,12 +5,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useBackend } from '@/backend/use-backend';
 import { ToastHost } from '@/components/toast';
+import { useReminders } from '@/reminders/use-reminders';
 import { useAppStatePause } from '@/session/use-app-state-pause';
 import { useIsDark, usePalette } from '@/theme';
 
 export default function RootLayout() {
   useAppStatePause();
   useBackend();
+  useReminders();
   const isDark = useIsDark();
   const palette = usePalette();
   const base = isDark ? DarkTheme : DefaultTheme;
