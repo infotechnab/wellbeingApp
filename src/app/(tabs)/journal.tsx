@@ -85,7 +85,8 @@ export default function JournalScreen() {
                 <View style={{ flex: 1 }}>
                   <AppText variant="label">{emotion.name}</AppText>
                   <AppText variant="caption" muted>
-                    {formatWhen(item.endedAt)} · {item.completed} of {item.total} done
+                    {formatWhen(item.endedAt)} ·{' '}
+                    {item.total === 0 ? 'Quick check-in' : `${item.completed} of ${item.total} done`}
                     {item.redos > 0 ? ` · ${item.redos} redo${item.redos === 1 ? '' : 's'}` : ''}
                   </AppText>
                 </View>

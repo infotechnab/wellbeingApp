@@ -3,6 +3,14 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.2.0
+
+- Daily reminder: turn it on in Profile and pick a time. Once a day a notification asks how you're
+  feeling, and you can tap a feeling right on it to check in without opening the app. It offers the
+  two feelings you pick most, plus "Other feeling" to open the full wheel. On iPhone, press and hold
+  the notification to see the buttons.
+- Check-ins from the reminder show in the Journal as quick check-ins.
+
 ## 1.1.0
 
 - Send feedback from Profile: write up to 200 words, record a voice message of up to 5 minutes, or

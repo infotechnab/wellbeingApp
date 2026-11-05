@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { signInAnonymously, signOut, useAuthStore } from '@/backend/auth-store';
 import { clearLocalJournal, syncNow } from '@/backend/sync';
 import { HelpLink } from '@/components/help-link';
+import { ReminderSettings } from '@/components/reminder-settings';
 import { useToast } from '@/components/toast';
 import { AppText, Button, Screen } from '@/components/ui';
 import { useHistoryStore } from '@/session/history';
@@ -71,6 +72,11 @@ export default function ProfileScreen() {
           </AppText>
         </View>
       )}
+
+      <View style={[styles.section, { borderTopColor: palette.border }]}>
+        <AppText variant="label">Daily reminder</AppText>
+        <ReminderSettings />
+      </View>
 
       <View style={[styles.section, { borderTopColor: palette.border }]}>
         <AppText variant="label">Feedback</AppText>
