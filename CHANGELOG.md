@@ -3,6 +3,12 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.3.0
+
+- New Notifications section in Profile with a Morning (8 am), Midday (1 pm) and Evening (8 pm)
+  check-in. The morning one is on to start with, and you can switch any of them on or off.
+- The app asks once whether it may send notifications, the first time you reach the feelings wheel.
+
 ## 1.2.0
 
 - Daily reminder: turn it on in Profile and pick a time. Once a day a notification asks how you're

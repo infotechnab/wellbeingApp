@@ -42,7 +42,7 @@ export function useReminders() {
     });
 
     const unsubSettings = useReminderStore.subscribe((state, prev) => {
-      if (state.enabled !== prev.enabled || state.hour !== prev.hour || state.minute !== prev.minute) {
+      if (state.on !== prev.on) {
         void syncReminder().catch(() => undefined);
       }
     });
