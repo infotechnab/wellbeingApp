@@ -8,13 +8,12 @@ import { useHistoryStore } from '@/session/history';
 import { saveQuickCheckIn } from './check-in';
 import { whenHydrated } from './hydrate';
 import { pickQuickFeelings } from './quick-feelings';
-import { useReminderStore } from './settings';
+import { REMINDER_SLOTS, useReminderStore, type ReminderSlot } from './settings';
 
 /** Reminders only exist in the phone apps. */
 export const remindersSupported = Platform.OS === 'ios' || Platform.OS === 'android';
 
 const CHANNEL = 'reminders';
-const REMINDER_ID = 'daily_checkin';
 const FEEL_PREFIX = 'feel_';
 export const OTHER_ACTION = 'other';
 
@@ -59,16 +58,25 @@ export async function allowNotifications(): Promise<boolean> {
   return (await Notifications.requestPermissionsAsync()).granted;
 }
 
+/** The 1.2.0 single reminder, cancelled in case it is still scheduled. */
+const OLD_REMINDER_ID = 'daily_checkin';
+const reminderId = (slot: ReminderSlot) => `checkin_${slot}`;
+
 /**
- * Schedules (or cancels) the daily "How are you feeling?" reminder to match the settings. The two feeling
- * buttons are the person's most-picked feelings, so this runs again after each check-in.
+ * Schedules the morning, midday and evening check-ins that are switched on, and cancels the rest. The two
+ * feeling buttons are the person's most-picked feelings, so this runs again after each check-in.
  */
 export async function syncReminder(): Promise<void> {
   if (!remindersSupported) return;
   await Promise.all([whenHydrated(useReminderStore), whenHydrated(useHistoryStore)]);
-  const { enabled, hour, minute } = useReminderStore.getState();
-  await Notifications.cancelScheduledNotificationAsync(REMINDER_ID).catch(() => undefined);
-  if (!enabled) return;
+  const { on } = useReminderStore.getState();
+  await Promise.all(
+    [OLD_REMINDER_ID, ...REMINDER_SLOTS.map((s) => reminderId(s.id))].map((id) =>
+      Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined),
+    ),
+  );
+  const slots = REMINDER_SLOTS.filter((s) => on[s.id]);
+  if (slots.length === 0) return;
   if (!(await Notifications.getPermissionsAsync()).granted) return;
 
   const feelings = pickQuickFeelings(useHistoryStore.getState().sessions);
@@ -82,16 +90,37 @@ export async function syncReminder(): Promise<void> {
     { identifier: OTHER_ACTION, buttonTitle: 'Other feeling', options: { opensAppToForeground: true } },
   ]);
   const data: ReminderData = { kind: 'checkin' };
-  await Notifications.scheduleNotificationAsync({
-    identifier: REMINDER_ID,
-    content: {
-      title: 'How are you feeling right now?',
-      body: Platform.OS === 'ios' ? 'Press and hold to check in.' : 'Pick one below. It only takes a second.',
-      categoryIdentifier: category,
-      data,
-    },
-    trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour, minute, channelId: CHANNEL },
-  });
+  for (const slot of slots) {
+    await Notifications.scheduleNotificationAsync({
+      identifier: reminderId(slot.id),
+      content: {
+        title: 'How are you feeling right now?',
+        body: Platform.OS === 'ios' ? 'Press and hold to check in.' : 'Pick one below. It only takes a second.',
+        categoryIdentifier: category,
+        data,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: slot.hour,
+        minute: slot.minute,
+        channelId: CHANNEL,
+      },
+    });
+  }
+}
+
+/**
+ * Asks for notification permission the first time Home opens, because the morning check-in starts switched
+ * on. Asked once only; after that, switching a check-in on in Profile asks again if needed.
+ */
+export async function askOnceForReminders(): Promise<void> {
+  if (!remindersSupported) return;
+  await whenHydrated(useReminderStore);
+  const store = useReminderStore.getState();
+  if (store.asked) return;
+  store.markAsked();
+  if (!Object.values(store.on).some(Boolean)) return;
+  if (await allowNotifications().catch(() => false)) await syncReminder().catch(() => undefined);
 }
 
 /**

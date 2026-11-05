@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 import { useHistoryStore } from '@/session/history';
 
-import { categoryFor, feelingFromAction, handleReminderResponse } from '../notifications';
+import { askOnceForReminders, categoryFor, feelingFromAction, handleReminderResponse, syncReminder } from '../notifications';
 import { useReminderStore } from '../settings';
 
 jest.mock('expo-notifications', () => ({
@@ -32,7 +32,7 @@ beforeAll(() => {
 beforeEach(() => {
   jest.clearAllMocks();
   useHistoryStore.setState({ sessions: [] });
-  useReminderStore.setState({ enabled: true, hour: 21, minute: 0, handled: [] });
+  useReminderStore.setState({ on: { morning: true, midday: false, evening: false }, asked: false, handled: [] });
 });
 
 it('reads the feeling from a button id', () => {
@@ -76,4 +76,38 @@ it('opens the wheel for "Other feeling" and an activity for the saved note', asy
 it('ignores notifications that are not reminders', async () => {
   expect(await handleReminderResponse(response('feel_joy', {}))).toBeNull();
   expect(useHistoryStore.getState().sessions).toHaveLength(0);
+});
+
+const scheduledTimes = () =>
+  (Notifications.scheduleNotificationAsync as jest.Mock).mock.calls.map(([req]) => [req.identifier, req.trigger.hour]);
+
+it('schedules only the morning check-in by default', async () => {
+  await syncReminder();
+  expect(scheduledTimes()).toEqual([['checkin_morning', 8]]);
+  expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('daily_checkin');
+});
+
+it('schedules each check-in that is switched on, and none when all are off', async () => {
+  useReminderStore.getState().setOn('morning', false);
+  useReminderStore.getState().setOn('midday', true);
+  useReminderStore.getState().setOn('evening', true);
+  await syncReminder();
+  expect(scheduledTimes()).toEqual([
+    ['checkin_midday', 13],
+    ['checkin_evening', 20],
+  ]);
+
+  jest.clearAllMocks();
+  useReminderStore.getState().setOn('midday', false);
+  useReminderStore.getState().setOn('evening', false);
+  await syncReminder();
+  expect(Notifications.scheduleNotificationAsync).not.toHaveBeenCalled();
+});
+
+it('asks for permission only once', async () => {
+  (Notifications.getPermissionsAsync as jest.Mock).mockResolvedValueOnce({ granted: false, canAskAgain: true });
+  await askOnceForReminders();
+  await askOnceForReminders();
+  expect(Notifications.requestPermissionsAsync).toHaveBeenCalledTimes(1);
+  expect(useReminderStore.getState().asked).toBe(true);
 });

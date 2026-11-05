@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { SunIcon } from '@/components/icons';
@@ -8,6 +8,7 @@ import { EmotionChips } from '@/components/wheel/emotion-chips';
 import { EmotionWheel } from '@/components/wheel/emotion-wheel';
 import { EMOTIONS, type EmotionId } from '@/content';
 import { useScreenReaderEnabled } from '@/hooks/use-screen-reader';
+import { askOnceForReminders } from '@/reminders/notifications';
 import { useSessionStore } from '@/session/store';
 import { maxContentWidth, spacing } from '@/theme';
 
@@ -19,6 +20,11 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const wheelSize = Math.min(width, maxContentWidth) - spacing.lg * 2;
   const size = Math.min(wheelSize, height * 0.48, 380);
+
+  // The morning check-in starts switched on, so the first visit here asks to allow notifications.
+  useEffect(() => {
+    void askOnceForReminders();
+  }, []);
 
   const choose = () => {
     if (!selected) return;
