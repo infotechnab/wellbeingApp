@@ -70,8 +70,8 @@ npx eas-cli@latest build --profile production --platform all    # store builds
 npx eas-cli@latest submit --platform ios                        # upload to App Store Connect
 ```
 
-Store submission needs an Apple Developer account and a Google Play Console account. The iPhone bundle ID
-is `com.digitalaya.wellbeing` and the Android package `com.infotechnab.wellbeing` (both in `app.json`).
+Store submission needs an Apple Developer account and a Google Play Console account. The bundle ID
+(iPhone) and package (Android) are both `com.digitalaya.wellbeing`, set in `app.json`.
 
 **iPhone testers.** TestFlight builds come from EAS and install from a link; see
 [docs/iphone-testflight.md](docs/iphone-testflight.md). After the first build from a computer,
