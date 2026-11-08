@@ -62,6 +62,11 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "description": "Check in with how you feel and take small, body-based steps to feel better."
+    "description": "Check in with how you feel and take small, body-based steps to feel better.",
+    "extra": {
+      "eas": {
+        "projectId": "f5afd22a-4440-432c-b7e4-5870f135c22d"
+      }
+    }
   }
 }
