@@ -103,7 +103,7 @@ switch on automatic distribution for the group.
   ID isn't on the Developer team yet, or the enrolment isn't finished. Check
   [developer.apple.com/account](https://developer.apple.com/account).
 - **"Bundle identifier is not available"**: another Apple team already registered
-  `com.infotechnab.wellbeing`. Change `ios.bundleIdentifier` in `app.json` (through a pull request)
+  `com.digitalaya.wellbeing`. Change `ios.bundleIdentifier` in `app.json` (through a pull request)
   and build again.
 - **The build doesn't appear in TestFlight**: Apple is still processing it (up to 30 minutes), or
   it emailed you about a problem with the build.

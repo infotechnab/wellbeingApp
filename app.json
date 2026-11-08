@@ -8,7 +8,7 @@
     "scheme": "wellbeing",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.infotechnab.wellbeing",
+      "bundleIdentifier": "com.digitalaya.wellbeing",
       "supportsTablet": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
