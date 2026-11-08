@@ -3,6 +3,13 @@
 Each version's changes, newest first. The app's home page shows this list, so write it for the
 people using the app. Add a section whenever `version` in `app.json` goes up.
 
+## 1.3.2
+
+- The app has a new ID, `com.digitalaya.wellbeing`, ready for TestFlight and the app stores.
+  On Android, this version installs as a new app next to the old one: delete the old Wellbeing
+  app after you install it. If you haven't made an account, check-ins, sketches and notes from the
+  old app don't move across.
+
 ## 1.3.1
 
 - A new logo: eight soft petals like the feelings wheel, with one filled in for the feeling you

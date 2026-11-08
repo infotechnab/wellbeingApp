@@ -3,7 +3,7 @@
 Before the Apple Developer account is ready, a Mac with Xcode can put a test copy of the app on your
 own iPhone with a free Apple account. Apple limits this: it only works on iPhones plugged into that
 Mac, and the copy stops opening after 7 days, when one command renews it. For other testers, use
-TestFlight once the paid account is approved.
+TestFlight ([iphone-testflight.md](iphone-testflight.md)).
 
 The test copy has its own bundle ID (the real one plus `.local`), so the real ID stays free for
 TestFlight and the App Store, and both versions can sit side by side on one iPhone later.
