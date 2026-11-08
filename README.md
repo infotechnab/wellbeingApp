@@ -73,7 +73,8 @@ npx eas-cli@latest submit --platform ios                        # upload to App 
 Store submission needs an Apple Developer account and a Google Play Console account. The bundle ID
 (iPhone) and package (Android) are both `com.digitalaya.wellbeing`, set in `app.json`.
 
-**iPhone testers.** TestFlight builds come from EAS and install from a link; see
+**iPhone testers.** TestFlight builds come from EAS and install from
+https://testflight.apple.com/join/RKT7Wdhq (also on the website); see
 [docs/iphone-testflight.md](docs/iphone-testflight.md). After the first build from a computer,
 **Actions → iPhone TestFlight → Run workflow** builds `main` and uploads it (`.github/workflows/iphone.yml`).
 
